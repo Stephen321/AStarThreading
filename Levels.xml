@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <level1>
+    <player>
+      <health>100</health>
+      <respawn-time>3</respawn-time>
+      <image>asset/player/player01.png</image>
+    </player>
+    <gameobject>
+      <orc>
+        <power>50</power>
+        <respan>3</respan>
+        <image>asset/npc/orc1.png</image>
+      </orc>
+    </gameobject>
+    <collectables>
+      <data1>
+        <x>100</x>
+        <y>200</y>
+        <image>asset/collectable/chest.png</image>
+      </data1>
+    </collectables>
+  </level1>
+</root>
