@@ -21,32 +21,24 @@ int main(int argc, char** argv){
 
 	Game* game = new Game();
 
-	XMLDocument doc;
-	doc.LoadFile("Levels.xml");
-
-	const char* temp = doc.FirstChildElement("root")->FirstChildElement("level1")->FirstChildElement("player")->FirstChildElement("health")->GetText();
-
-	DEBUG_MSG(temp);
-
-	//Adjust screen positions as needed
 	DEBUG_MSG("Game Initialising");
-	game->Initialize("DGPP Skelatol",300,100,800,600, SDL_WINDOW_INPUT_FOCUS);
+	game->initialize("DGPP Skelatol",300,100,800,600, SDL_WINDOW_INPUT_FOCUS);
 	
 	DEBUG_MSG("Loading Content");
-	game->LoadContent();
+	game->loadContent();
 
 
 	DEBUG_MSG("Game Loop Starting......");
-	while(game->IsRunning())
+	while(game->isRunning())
 	{
-		game->HandleEvents();
-		game->Update();
-		game->Render();
+		game->handleEvents();
+		game->update();
+		game->render();
 	}
 
 	DEBUG_MSG("Calling Cleanup");
-	game->CleanUp();
-	game->UnloadContent();
+	game->cleanUp();
+	game->unloadContent();
 	
 	return 0;
 }
