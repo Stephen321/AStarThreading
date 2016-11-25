@@ -86,12 +86,14 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerFactory.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileLayer.cpp" />
-    <ClCompile Include="TinyXML2.cpp" />
     <ClCompile Include="Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractFactory.h" />
+    <ClInclude Include="BasicTypes.h" />
+    <ClInclude Include="Drawable.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="GameObject.h" />
@@ -103,7 +105,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerFactory.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="TinyXML2.h" />
+    <ClInclude Include="Tile.h" />
     <ClInclude Include="Vector2D.h" />
   </ItemGroup>
   <ItemGroup>

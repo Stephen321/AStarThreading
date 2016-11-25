@@ -11,12 +11,15 @@ Game::~Game()
 {
 }
 
-bool Game::initialize(const char* title, int xpos, int ypos, int width, int height, int flags)
+bool Game::initialize(const char* title, int width, int height, int flags)
 {
 	if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
 	{
 		DEBUG_MSG("SDL Init success");
-		return m_renderer.initialize();
+		if (!m_renderer.initialize(title, width, height, flags))
+		{
+			return false;
+		}
 	}
 	else
 	{
@@ -41,7 +44,7 @@ void Game::loadContent()
 void Game::render()
 {
 	m_renderer.clear();
-
+	m_renderer.render(&testTile);
 	m_renderer.present();
 }
 
@@ -65,22 +68,22 @@ void Game::handleEvents()
 					break;
 				case SDLK_UP:
 					DEBUG_MSG("Up Key Pressed");
-					m_renderer.setDrawColor(255, 0, 0, 255);
+					m_renderer.setDrawColour(255, 0, 0, 255);
 					break;
 				case SDLK_DOWN:
 					DEBUG_MSG("Down Key Pressed");
-					m_renderer.setDrawColor(0, 255, 0, 255);
+					m_renderer.setDrawColour(0, 255, 0, 255);
 					break;
 				case SDLK_LEFT:
 					DEBUG_MSG("Left Key Pressed");
-					m_renderer.setDrawColor(0, 0, 255, 255);
+					m_renderer.setDrawColour(0, 0, 255, 255);
 					break;
 				case SDLK_RIGHT:
 					DEBUG_MSG("Right Key Pressed");
-					m_renderer.setDrawColor(255, 255, 255, 255);
+					m_renderer.setDrawColour(255, 255, 255, 255);
 					break;
 				default:
-					m_renderer.setDrawColor(0, 0, 0, 255);
+					m_renderer.setDrawColour(0, 0, 0, 255);
 					break;
 				}
 	}

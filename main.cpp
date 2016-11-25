@@ -2,8 +2,6 @@
 #include <thread>
 #include <string>
 
-#include <TinyXML2.h>
-
 #include <SDL.h>
 #include <SDL_image.h>
 
@@ -11,18 +9,13 @@
 #include <Player.h>
 
 using namespace std;
-using namespace tinyxml2;
 
-int main(int argc, char** argv){
-
-	DEBUG_MSG("Game Object Created");
-
-	Player* player = new Player();
-
+int main(int argc, char** argv)
+{
 	Game* game = new Game();
 
 	DEBUG_MSG("Game Initialising");
-	game->initialize("DGPP Skelatol",300,100,800,600, SDL_WINDOW_INPUT_FOCUS);
+	game->initialize("DGPP Skelatol", 1280, 720, SDL_WINDOW_INPUT_FOCUS);
 	
 	DEBUG_MSG("Loading Content");
 	game->loadContent();
