@@ -10,11 +10,9 @@ Player::~Player()
 	DEBUG_MSG("Destructing Player");
 }
 
-void Player::Initialize(const GameObjectParameters* params)
+void Player::Initialize()
 {
 	DEBUG_MSG("Player Initializing");
-	this->SetX(params->GetX());
-	this->SetY(params->GetY());
 }
 
 void Player::Render()

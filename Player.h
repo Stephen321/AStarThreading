@@ -8,7 +8,7 @@ class Player : public GameObject
 public:
 	Player();
 	~Player();
-	void Initialize(const GameObjectParameters*); 
+	void Initialize(); 
 	void Render();
 	void Update();
 	void CleanUp();

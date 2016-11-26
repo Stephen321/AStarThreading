@@ -2,9 +2,9 @@
 #define RENDERER_H
 #include "Debug.h"
 #include "BasicTypes.h"
+#include "Drawable.h"
 #include <SDL.h>
 
-class Drawable; //TODO: remove this
 class Renderer 
 {
 public:
@@ -22,7 +22,5 @@ private:
 	SDL_Renderer* m_renderer;
 
 };
-
-#include "Drawable.h"
 
 #endif

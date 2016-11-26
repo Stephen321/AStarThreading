@@ -78,32 +78,25 @@
   <ItemGroup>
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="GameObjectFactory.cpp" />
     <ClCompile Include="Layer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Level.cpp" />
-    <ClCompile Include="GameObjectParameters.cpp" />
     <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayerFactory.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileLayer.cpp" />
     <ClCompile Include="Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AbstractFactory.h" />
     <ClInclude Include="BasicTypes.h" />
     <ClInclude Include="Drawable.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GameObjectFactory.h" />
-    <ClInclude Include="GameObjectParameters.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="LevelParser.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="PlayerFactory.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="Vector2D.h" />

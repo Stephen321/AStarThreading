@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "Debug.h"
-#include "GameObjectParameters.h"
 
 using namespace std;
 
@@ -12,7 +11,7 @@ class GameObject
 public:
 	GameObject();
 	~GameObject();
-	virtual void Initialize(const GameObjectParameters*) = 0; 
+	virtual void Initialize() = 0; 
 	virtual void Render() = 0;
 	virtual void Update() = 0;
 	virtual void CleanUp() = 0;
