@@ -1,12 +1,14 @@
 #include "Tile.h"
 
-Tile::Tile()
-	: m_colour(255, 255, 5, 255)
-	, m_rect({0,0,50,50})
+Tile::Tile(int x, int y, const Colour& colour, const SDL_Rect& rect)
+	: m_x(x)
+	, m_y(y)
+	, m_colour(colour)
+	, m_rect(rect)
 {
 }
 
 void Tile::render(const Renderer& r) const
 {
-	r.drawRect(m_rect, m_colour);
+	r.drawRect(m_rect, m_colour, Colour(0, 0, 0, 255));
 }

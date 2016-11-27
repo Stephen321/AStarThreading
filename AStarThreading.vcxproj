@@ -85,7 +85,6 @@
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileLayer.cpp" />
-    <ClCompile Include="Vector2D.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicTypes.h" />
@@ -99,7 +98,7 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Tile.h" />
-    <ClInclude Include="Vector2D.h" />
+    <ClInclude Include="WorldConstants.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="Levels.xml">

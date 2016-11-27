@@ -19,8 +19,14 @@ public:
 private:
 	Renderer m_renderer;
 	bool m_running;
+	const int SIZE_ONE = 10;
+	const int SIZE_TWO = 100;
+	const int SIZE_THREE = 1000;
+	int m_size;
+	Tile ** m_tiles;
 
-	Tile testTile;
+	void setUpTiles(int size);
+	void cleanUpTiles();
 };
 #endif
 

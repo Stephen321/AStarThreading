@@ -1,9 +1,7 @@
 #include <SDL.h>
 #include <Layer.h>
 #include <Level.h>
-#include <Vector2D.h>
-
-using namespace muddygames;
+#include "BasicTypes.h"
 
 class TileLayer : public Layer
 {
