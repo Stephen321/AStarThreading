@@ -18,7 +18,7 @@ public:
 	void render(const Drawable* d) const;
 	void drawRect(SDL_Rect r, const Colour& fillColour, const Colour& outlineColour = Colour()) const;
 	void present();
-	Vector2D getCameraPos() const;
+	Vector2f getCameraPos() const;
 	void moveCamera(int xDir, int yDir);
 
 private:

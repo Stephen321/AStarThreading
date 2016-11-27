@@ -10,10 +10,18 @@ typedef struct Colour {
 } Colour;
 
 
-typedef struct Vector2D {
-	Vector2D(float _x, float _y) : x(_x), y(_y) {}
+typedef struct Vector2f {
+	Vector2f(float _x, float _y) : x(_x), y(_y) {}
+	Vector2f() : x(0.f), y(0.f) {}
 	float x;
 	float y;
-} Vector2D;
+} Vector2f;
+
+typedef struct Vector2i {
+	Vector2i(int _x, int _y) : x(_x), y(_y) {}
+	Vector2i() : x(0), y(0) {}
+	int x;
+	int y;
+} Vector2i;
 
 #endif // ! BASICTYPES_H

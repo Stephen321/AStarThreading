@@ -2,6 +2,7 @@
 #ifdef DEBUG
 #undef DEBUG
 #endif
+#include <iostream>
 //Define DEBUG
 #define DEBUG 1
 //MACRO for streaming DEBUG

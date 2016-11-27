@@ -55,9 +55,9 @@ void Renderer::present()
 	SDL_RenderPresent(m_renderer);
 }
 
-Vector2D Renderer::getCameraPos() const
+Vector2f Renderer::getCameraPos() const
 {
-	return Vector2D(m_camera.x, m_camera.y);
+	return Vector2f(m_camera.x, m_camera.y);
 }
 
 void Renderer::setDrawColour(int r, int g, int b, int a) const

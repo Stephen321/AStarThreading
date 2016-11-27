@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 #include "Renderer.h"
-#include "Tile.h"
+#include "TileMap.h"
 
 class Game
 {
@@ -22,11 +22,8 @@ private:
 	const int SIZE_ONE = 10;
 	const int SIZE_TWO = 100;
 	const int SIZE_THREE = 1000;
-	int m_size;
-	Tile ** m_tiles;
 
-	void setUpTiles(int size);
-	void cleanUpTiles();
+	TileMap m_tileMap;
 };
 #endif
 
