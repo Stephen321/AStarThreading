@@ -1,11 +1,20 @@
 #include "Tile.h"
 
-Tile::Tile(const Vector2i& coords, const Colour& colour, const SDL_Rect& rect)
-	: m_coords(coords)
-	, m_colour(colour)
+Tile::Tile(Type type, const SDL_Rect& rect)
+	: m_type(type)
 	, m_rect(rect)
-	, m_pos(m_rect.x, m_rect.y)
 {
+	switch (m_type)
+	{
+	case Type::Normal:
+		m_colour = Colour(240, 240, 240, 255);
+		break;
+	case Type::Wall:
+		m_colour = Colour(0, 255, 0, 255);
+		break;
+	default:
+		break;
+	}
 }
 
 void Tile::render(const Renderer& r) const
@@ -13,12 +22,7 @@ void Tile::render(const Renderer& r) const
 	r.drawRect(m_rect, m_colour, Colour(0, 0, 0, 255));
 }
 
-Vector2i Tile::getCoords() const
-{
-	return m_coords;
-}
-
 Vector2f Tile::getPos() const
 {
-	return m_pos;
+	return Vector2f(m_rect.x, m_rect.y);
 }

@@ -5,8 +5,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include <Game.h>
-#include <Player.h>
+#include "Game.h"
 
 using namespace std;
 
@@ -15,7 +14,7 @@ int main(int argc, char** argv)
 	Game* game = new Game();
 
 	DEBUG_MSG("Game Initialising");
-	game->initialize("DGPP Skelatol", 1280, 720, SDL_WINDOW_INPUT_FOCUS);
+	game->initialize("DGPP Skelatol", 26 * TILE_SIZE, 16 * TILE_SIZE, SDL_WINDOW_INPUT_FOCUS);
 	
 	DEBUG_MSG("Loading Content");
 	game->loadContent();

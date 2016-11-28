@@ -6,16 +6,18 @@
 class Tile : public Drawable
 {
 public:
-	Tile(const Vector2i& coords, const Colour& colour, const SDL_Rect& rect);
+	enum class Type {
+		Normal,
+		Wall
+	};
+	Tile(Type type, const SDL_Rect& rect);
 	void render(const Renderer& r) const override;
-	Vector2i getCoords() const;
 	Vector2f getPos() const;
 
 private:
 	Colour m_colour;
 	SDL_Rect m_rect;
-	Vector2i m_coords;
-	Vector2f m_pos;
+	Type m_type;
 };
 
 #endif

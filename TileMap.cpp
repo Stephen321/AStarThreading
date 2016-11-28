@@ -15,17 +15,15 @@ void TileMap::reset(int size)
 	m_tiles = new Tile*[m_size * m_size];
 
 	Vector2i coords;
-	Colour c(240, 240, 240, 255);
 	SDL_Rect r = { m_topLeft.x, m_topLeft.y, TILE_SIZE, TILE_SIZE };
 
-	for (; coords.y < m_size; coords.y++)
+	for (int y = 0; y < m_size; y++)
 	{
-		for (; coords.x < m_size; coords.x++)
+		for (int x = 0; x < m_size; x++)
 		{
-			m_tiles[coords.x + (coords.y * m_size)] = new Tile(coords, c, r);
+			m_tiles[x + (y * m_size)] = new Tile(Tile::Type::Normal, r);
 			r.x += TILE_SIZE;
 		}
-		coords.x = 0;
 		r.x = m_topLeft.x;
 		r.y += TILE_SIZE;
 	}
