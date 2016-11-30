@@ -12,6 +12,7 @@ public:
 	void render(const Renderer& r) const override;
 	Vector2f coordsToPos(Vector2i coords) const;
 	Vector2i posToCoords(Vector2f pos) const;
+	int getSize() const;
 
 private:
 	Vector2f m_topLeft;

@@ -18,8 +18,8 @@ public:
 	void render(const Drawable* d) const;
 	void drawRect(SDL_Rect r, const Colour& fillColour, const Colour& outlineColour = Colour()) const;
 	void present();
-	Vector2f getCameraPos() const;
 	void moveCamera(int xDir, int yDir);
+	BoundingBox getCameraBounds() const;
 
 private:
 	SDL_Window* m_window;
@@ -27,6 +27,7 @@ private:
 	SDL_Rect m_camera;
 	float m_windowWidth;
 	float m_windowHeight;
+	BoundingBox m_cameraBounds;
 
 	SDL_Rect applyCameraTransformation(const SDL_Rect& r) const;
 

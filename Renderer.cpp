@@ -21,7 +21,9 @@ bool Renderer::initialize(const char* title, int width, int height, int flags)
 			//DEBUG_MSG("Renderer creation success");
 			/*width *= 2.5f;
 			height *= 2.5f;*/
-			m_camera = { 0, 0, width, height }; //half the size of the window
+			m_cameraBounds.w = width / TILE_SIZE;
+			m_cameraBounds.h = height / TILE_SIZE;
+			m_camera = { m_cameraBounds.x, m_cameraBounds.y, width, height }; //half the size of the window
 			SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 			return true;
 		}
@@ -53,11 +55,6 @@ void Renderer::present()
 {
 	setDrawColour(128, 64, 128, 255);
 	SDL_RenderPresent(m_renderer);
-}
-
-Vector2f Renderer::getCameraPos() const
-{
-	return Vector2f(m_camera.x, m_camera.y);
 }
 
 void Renderer::setDrawColour(int r, int g, int b, int a) const
@@ -107,5 +104,12 @@ void Renderer::moveCamera(int xDir, int yDir)
 {
 	m_camera.x += xDir * TILE_SIZE;
 	m_camera.y += yDir * TILE_SIZE;
+	m_cameraBounds.x += xDir;
+	m_cameraBounds.y += yDir;
+}
+
+BoundingBox Renderer::getCameraBounds() const
+{
+	return m_cameraBounds;
 }
 

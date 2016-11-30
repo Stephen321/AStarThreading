@@ -5,6 +5,9 @@
 
 Game::Game() 
 	: m_running(false)
+	, m_framesCount(0)
+	, m_framesPerSecond(0)
+	, m_lastTicks(SDL_GetTicks())
 {
 }
 
@@ -31,7 +34,9 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	
 
 	//initialize game
-	m_tileMap.reset(SIZE_ONE);
+	m_tileMap.reset(LEVEL_ONE);
+	Vector2f playerPosition = m_tileMap.coordsToPos(Vector2i(m_tileMap.getSize() - 1, m_tileMap.getSize() - 1));
+	m_player = new Player({(int)playerPosition.x, (int)playerPosition.y, TILE_SIZE, TILE_SIZE});
 
 	
 	return true;
@@ -48,13 +53,21 @@ void Game::render()
 	m_renderer.clear();
 
 	m_renderer.render(&m_tileMap);
+	m_renderer.render(m_player);
 
 	m_renderer.present();
 }
 
 void Game::update()
 {
-	//DEBUG_MSG("Updating....");
+	m_framesCount++;
+	if (m_lastTicks < SDL_GetTicks() - 1000)
+	{
+		m_lastTicks = SDL_GetTicks();
+		m_framesPerSecond = m_framesCount;
+		std::cout << "FPS: " << m_framesPerSecond << std::endl;
+		m_framesCount = 0;
+	}
 }
 
 void Game::handleEvents()
@@ -102,6 +115,8 @@ void Game::cleanUp()
 {
 	DEBUG_MSG("Cleaning Up");
 	m_renderer.cleanUp();
+	delete m_player;
 	m_tileMap.cleanUpTiles();
 	SDL_Quit();
 }
+

@@ -1,23 +1,13 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include "Drawable.h"
+#include "GameObject.h"
 
-class Tile : public Drawable
+class Tile : public GameObject
 {
 public:
-	enum class Type {
-		Normal,
-		Wall
-	};
 	Tile(Type type, const SDL_Rect& rect);
-	void render(const Renderer& r) const override;
 	Vector2f getPos() const;
-
-private:
-	Colour m_colour;
-	SDL_Rect m_rect;
-	Type m_type;
 };
 
 #endif
