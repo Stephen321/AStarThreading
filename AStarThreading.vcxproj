@@ -79,7 +79,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Tile.cpp" />
@@ -90,7 +90,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="Character.h" />
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Tile.h" />

@@ -13,7 +13,6 @@ void TileMap::reset(int size)
 	cleanUpTiles();
 
 	m_tiles = new Tile*[m_size * m_size];
-
 	Vector2i coords;
 	SDL_Rect r = { m_topLeftCoords.x * TILE_SIZE, m_topLeftCoords.y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
@@ -27,12 +26,6 @@ void TileMap::reset(int size)
 		r.x = m_topLeftCoords.x * TILE_SIZE;
 		r.y += TILE_SIZE;
 	}
-
-	//for (int i = 0; i < m_size * m_size; i++)
-	//{
-		//Vector2i coord = posToCoords(m_tiles[i]->getPos());
-		//std::cout << "Coords x: " << coord.x << " y: " << coord.y << std::endl;
-	//}
 
 }
 
@@ -55,24 +48,23 @@ void TileMap::render(const Renderer& r) const
 	visibleBounds.y -= m_topLeftCoords.y;
 	if (visibleBounds.x < 0)
 	{
+		visibleBounds.w += visibleBounds.x;
 		visibleBounds.x = 0;
 	}
 	if (visibleBounds.y < 0)
 	{
+		visibleBounds.h += visibleBounds.y;
 		visibleBounds.y = 0;
 	}
 
-	if (m_size < visibleBounds.w)
+	visibleBounds.w = std::fminf(m_size - visibleBounds.x, visibleBounds.w);
+	visibleBounds.h= std::fminf(m_size - visibleBounds.y, visibleBounds.h);
+
+	//std::cout << "X: " << visibleBounds.x << " Y: " << visibleBounds.y << " W: " << (visibleBounds.x + visibleBounds.w) << " H: " << (visibleBounds.y + visibleBounds.h) << std::endl;
+
+	for (int y = visibleBounds.y; y < visibleBounds.y + visibleBounds.h; y++)
 	{
-		visibleBounds.w = m_size - visibleBounds.x;
-	}
-	if (m_size < visibleBounds.h)
-	{
-		visibleBounds.h = m_size - visibleBounds.y;
-	}
-	for (int y = visibleBounds.x; y < visibleBounds.y + visibleBounds.h; y++)
-	{
-		for (int x = visibleBounds.y; x < visibleBounds.x + visibleBounds.w; x++)
+		for (int x = visibleBounds.x; x < visibleBounds.x + visibleBounds.w; x++)
 		{
 			int index = x + (y * m_size);
 			r.render(m_tiles[index]);

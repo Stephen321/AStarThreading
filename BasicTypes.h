@@ -30,4 +30,4 @@ typedef struct Vector2i {
 	int y;
 } Vector2i;
 
-#endif // ! BASICTYPES_H
+#endif 

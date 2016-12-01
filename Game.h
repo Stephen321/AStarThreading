@@ -2,7 +2,7 @@
 #define GAME_H
 #include <vector>
 #include "Renderer.h""
-#include "Player.h"
+#include "Character.h"
 #include "TileMap.h"
 
 class Game
@@ -21,7 +21,7 @@ public:
 private:
 	Renderer m_renderer;
 	bool m_running;
-	const int LEVEL_ONE = 16;
+	const int LEVEL_ONE = 30;
 	const int LEVEL_TWO = 100;
 	const int LEVEL_THREE = 1000;
 
@@ -31,7 +31,9 @@ private:
 	Uint32 m_framesPerSecond; //the current FPS.
 	Uint32 m_framesCount; //frames passed since the last recorded fps.
 
-	Player* m_player;
+	Character* m_player;
+	Character* m_npc;
+
 	TileMap m_tileMap;
 };
 #endif

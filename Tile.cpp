@@ -3,7 +3,6 @@
 Tile::Tile(Type type, const SDL_Rect& rect)
 	: GameObject(type, rect)
 {
-
 }
 
 Vector2f Tile::getPos() const

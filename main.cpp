@@ -9,12 +9,36 @@
 
 using namespace std;
 
+int getTileLimitedSize(int resolution)
+{
+	return ((resolution / TILE_SIZE) * TILE_SIZE);
+}
+
 int main(int argc, char** argv)
 {
 	Game* game = new Game();
 
 	DEBUG_MSG("Game Initialising");
-	game->initialize("DGPP Skelatol", 26 * TILE_SIZE, 16 * TILE_SIZE, SDL_WINDOW_INPUT_FOCUS);
+	int width = 1280; //set to 1250 if 1260, 1300 if 1280. the window is can always fit a certain amount of tiles completely
+	int height = 800;
+	if (width - getTileLimitedSize(width) > TILE_SIZE / 2)
+	{
+		width = getTileLimitedSize(width) + TILE_SIZE;
+	}
+	else
+	{
+		width = getTileLimitedSize(width);
+	}
+	if (height - getTileLimitedSize(height) > TILE_SIZE / 2)
+	{
+		height = getTileLimitedSize(height) + TILE_SIZE;
+	}
+	else
+	{
+		height = getTileLimitedSize(height);
+	}
+
+	game->initialize("DGPP Skelatol", width, height, SDL_WINDOW_INPUT_FOCUS);
 	
 	DEBUG_MSG("Loading Content");
 	game->loadContent();

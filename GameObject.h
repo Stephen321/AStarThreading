@@ -6,11 +6,12 @@
 class GameObject : public Drawable
 {
 public:
-	enum class Type {
+	//TODO: cut this down 
+	enum class Type : Uint8 {
 		Normal,
 		Wall,
-		Player,
-		AI
+		NPC,
+		Player
 	};
 	GameObject(Type type, const SDL_Rect& rect);
 	virtual void render(const Renderer& r) const override;

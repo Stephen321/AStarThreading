@@ -1,6 +1,6 @@
 #ifndef WORLDCONSTANTS_H
 #define WORLDCONSTANTS_H
 
-const int TILE_SIZE = 50.f;
+const int TILE_SIZE = 25;
 
 #endif 

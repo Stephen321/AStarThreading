@@ -36,8 +36,10 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	//initialize game
 	m_tileMap.reset(LEVEL_ONE);
 	Vector2f playerPosition = m_tileMap.coordsToPos(Vector2i(m_tileMap.getSize() - 1, m_tileMap.getSize() - 1));
-	m_player = new Player({(int)playerPosition.x, (int)playerPosition.y, TILE_SIZE, TILE_SIZE});
+	m_player = new Character({ (int)playerPosition.x, (int)playerPosition.y, TILE_SIZE, TILE_SIZE }, Character::Type::Player);
 
+	Vector2f npcPosition = m_tileMap.coordsToPos(Vector2i(0, 0));
+	m_npc = new Character({ (int)npcPosition.x, (int)npcPosition.y, TILE_SIZE, TILE_SIZE });
 	
 	return true;
 }
@@ -54,6 +56,7 @@ void Game::render()
 
 	m_renderer.render(&m_tileMap);
 	m_renderer.render(m_player);
+	m_renderer.render(m_npc);
 
 	m_renderer.present();
 }
@@ -61,12 +64,18 @@ void Game::render()
 void Game::update()
 {
 	m_framesCount++;
-	if (m_lastTicks < SDL_GetTicks() - 1000)
+	if (SDL_GetTicks() > m_lastTicks + 1000) //every second
 	{
-		m_lastTicks = SDL_GetTicks();
+		//set last ticks to the current ticks
+		m_lastTicks = SDL_GetTicks(); 
+
+		//calculate fps 
 		m_framesPerSecond = m_framesCount;
 		std::cout << "FPS: " << m_framesPerSecond << std::endl;
 		m_framesCount = 0;
+
+		//update npc
+		m_npc->move();
 	}
 }
 

@@ -80,7 +80,6 @@ void Renderer::drawRect(SDL_Rect r, const Colour& fillColour, const Colour& outl
 	SDL_RenderFillRect(m_renderer, &r);
 	setDrawColour(outlineColour);
 	SDL_RenderDrawRect(m_renderer, &r);
-
 }
 
 SDL_Rect Renderer::applyCameraTransformation(const SDL_Rect& r) const
