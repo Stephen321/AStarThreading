@@ -2,6 +2,7 @@
 
 TileMap::TileMap() 
 	: m_size(0)
+	, m_topLeftCoords(Vector2i(0, 0))
 {
 
 }
@@ -11,11 +12,10 @@ void TileMap::reset(int size)
 	m_size = size;
 	cleanUpTiles();
 
-	m_topLeft = Vector2f(0.f, 0.f);
 	m_tiles = new Tile*[m_size * m_size];
 
 	Vector2i coords;
-	SDL_Rect r = { m_topLeft.x, m_topLeft.y, TILE_SIZE, TILE_SIZE };
+	SDL_Rect r = { m_topLeftCoords.x * TILE_SIZE, m_topLeftCoords.y * TILE_SIZE, TILE_SIZE, TILE_SIZE };
 
 	for (int y = 0; y < m_size; y++)
 	{
@@ -24,7 +24,7 @@ void TileMap::reset(int size)
 			m_tiles[x + (y * m_size)] = new Tile(Tile::Type::Normal, r);
 			r.x += TILE_SIZE;
 		}
-		r.x = m_topLeft.x;
+		r.x = m_topLeftCoords.x * TILE_SIZE;
 		r.y += TILE_SIZE;
 	}
 
@@ -50,29 +50,29 @@ void TileMap::cleanUpTiles()
 
 void TileMap::render(const Renderer& r) const
 {
+	BoundingBox visibleBounds = r.getCameraBounds();
+	visibleBounds.x -= m_topLeftCoords.x;
+	visibleBounds.y -= m_topLeftCoords.y;
+	if (visibleBounds.x < 0)
+	{
+		visibleBounds.x = 0;
+	}
+	if (visibleBounds.y < 0)
+	{
+		visibleBounds.y = 0;
+	}
 
-	BoundingBox cameraBounds = r.getCameraBounds();
-	if (cameraBounds.x < 0)
+	if (m_size < visibleBounds.w)
 	{
-		cameraBounds.x = 0;
+		visibleBounds.w = m_size - visibleBounds.x;
 	}
-	if (cameraBounds.y < 0)
+	if (m_size < visibleBounds.h)
 	{
-		cameraBounds.y = 0;
+		visibleBounds.h = m_size - visibleBounds.y;
 	}
-	//TODO: this always draws the full camera width of tiles even if they are off the right or bottom side of the screen
-	//TODO: also it doesnt work
-	if (m_size < cameraBounds.w)
+	for (int y = visibleBounds.x; y < visibleBounds.y + visibleBounds.h; y++)
 	{
-		cameraBounds.w = m_size - cameraBounds.x;
-	}
-	if (m_size < cameraBounds.h)
-	{
-		cameraBounds.h = m_size - cameraBounds.y;
-	}
-	for (int y = cameraBounds.x; y < cameraBounds.y + cameraBounds.h; y++)
-	{
-		for (int x = cameraBounds.y; x < cameraBounds.x + cameraBounds.w; x++)
+		for (int x = visibleBounds.y; x < visibleBounds.x + visibleBounds.w; x++)
 		{
 			int index = x + (y * m_size);
 			r.render(m_tiles[index]);
@@ -84,11 +84,8 @@ Vector2f TileMap::coordsToPos(Vector2i coords) const
 {
 	Vector2f pos;
 
-	coords.x *= TILE_SIZE;
-	coords.y *= TILE_SIZE;
-
-	pos.x = coords.x + m_topLeft.x;
-	pos.y = coords.y + m_topLeft.y;
+	pos.x = (coords.x + m_topLeftCoords.x) * TILE_SIZE;
+	pos.y = (coords.y + m_topLeftCoords.y) * TILE_SIZE;
 
 	return pos;
 }
@@ -97,11 +94,8 @@ Vector2i TileMap::posToCoords(Vector2f pos) const
 {
 	Vector2i coords;
 
-	pos.x -= m_topLeft.x;
-	pos.y -= m_topLeft.y;
-
-	coords.x = pos.x / TILE_SIZE;
-	coords.y = pos.y / TILE_SIZE;
+	coords.x = (pos.x / TILE_SIZE) - m_topLeftCoords.x;
+	coords.y = (pos.y / TILE_SIZE) - m_topLeftCoords.y;
 
 	return coords;
 }

@@ -15,7 +15,7 @@ public:
 	int getSize() const;
 
 private:
-	Vector2f m_topLeft;
+	Vector2i m_topLeftCoords;
 	int m_size;
 	Tile ** m_tiles;
 };
