@@ -158,10 +158,6 @@ std::vector<Vector2i> TileMap::getPath(const Vector2i& start, const Vector2i& en
 	//reset all
 	for (int i = 0; i < m_size * m_size; i++)
 	{
-		m_tiles[i]->g = std::numeric_limits<int>::max();
-		m_tiles[i]->f = std::numeric_limits<int>::max();
-		m_tiles[i]->closed = false;
-		m_tiles[i]->open = false;
 		int x1 = posToCoords(m_tiles[i]->getPos()).x;
 		int y1 = posToCoords(m_tiles[i]->getPos()).y;
 		if (m_tiles[i]->getType() == Tile::Type::Wall)
@@ -172,22 +168,22 @@ std::vector<Vector2i> TileMap::getPath(const Vector2i& start, const Vector2i& en
 		{
 			if (y1 % 2 == 0)
 			{
-				m_tiles[i]->m_colour = Colour(200, 200, 200, 255);
+				m_tiles[i]->setColour(Colour(200, 200, 200, 255));
 			}
 			else
 			{
-				m_tiles[i]->m_colour = Colour(70, 0, 160, 255);
+				m_tiles[i]->setColour(Colour(70, 0, 160, 255));
 			}
 		}
 		else
 		{
 			if (y1 % 2 == 0)
 			{
-				m_tiles[i]->m_colour = Colour(70, 0, 160, 255);
+				m_tiles[i]->setColour(Colour(70, 0, 160, 255));
 			}
 			else
 			{
-				m_tiles[i]->m_colour = Colour(200, 200, 200, 255);
+				m_tiles[i]->setColour(Colour(200, 200, 200, 255));
 			}
 		}
 		//m_tiles[i]->m_colour = Colour(240, 240, 240, 255); //TODO: remove this
@@ -197,57 +193,78 @@ std::vector<Vector2i> TileMap::getPath(const Vector2i& start, const Vector2i& en
 	int endIndex = end.x + (end.y * m_size);
 
 
-	//std::map<int, TileData> tileData;
+	std::map<int, TileData> map;
+
+	map[startIndex].g = 0;
+	map[startIndex].f = calculateHeuristic(m_tiles[startIndex], m_tiles[endIndex]);
 
 	std::vector<Vector2i> path;
 
 	if (m_tiles[startIndex]->getType() == Tile::Type::Wall || m_tiles[endIndex]->getType() == Tile::Type::Wall)
 		return path;
 
-	std::priority_queue<Tile*, std::vector<Tile*>, TileCostComparer> pq;
-	pq.push(m_tiles[startIndex]);
+	std::priority_queue<std::pair<int, int>, std::vector<std::pair<int,int>>, TileCostComparer> pq;
+
+	pq.push(std::pair<int, int>(startIndex, map[startIndex].f));
 
 	int neighbourOffets[8] = { -1, 0, 1, 0, 0, -1, 0, 1 };
 
+	//TODO: pointer to TileData which is in the map could be stored in pq instead?
+
 	while (pq.empty() == false)
 	{
-		Tile* current = pq.top();
+		int currentIndex = pq.top().first;
+		Tile* current = m_tiles[currentIndex];
+		Vector2i currentCoords = posToCoords(current->getPos());
 		if (current == m_tiles[endIndex])
 		{
-			for (; current != m_tiles[startIndex]; current = current->previous)
+			for (TileData td = map[currentIndex]; current != m_tiles[startIndex]; current = td.previous)
 			{
-				current->m_colour = Colour(0, 255, 0, 255);
+				current->setColour(Colour(0, 255, 0, 255));
+				//TODO: better way to do the path creation
+				currentCoords = posToCoords(current->getPos());
+				int index = currentCoords.x + (currentCoords.y * m_size);
+				td = map[index];
 			}
 			return  path;
 		}
-		Vector2i currentCoords = posToCoords(current->getPos());
 		pq.pop();
-		current->closed = true;
+		map[currentIndex].closed = true;
 
 		for (int i = 0; i < 8; i += 2) //for each neighbour of current
 		{
 			int x = (currentCoords.x + neighbourOffets[i] >= 0 && currentCoords.x + neighbourOffets[i] < m_size) ? currentCoords.x + neighbourOffets[i] : -1;
 			int y = (currentCoords.y + neighbourOffets[i + 1] >= 0 && currentCoords.y + neighbourOffets[i + 1] < m_size) ? currentCoords.y + neighbourOffets[i + 1] : -1;
-			
-			Tile* neighbour = (x == -1 || y  == -1) ? 0 : m_tiles[x + (y * m_size)];
-			if (neighbour == 0 || neighbour->closed || neighbour == neighbour->previous || neighbour->getType() == Tile::Type::Wall)
+			int neighbourIndex = x + (y * m_size);
+			Tile* neighbour = (x == -1 || y  == -1) ? 0 : m_tiles[neighbourIndex];
+			TileData& neighbourData = map[neighbourIndex];
+
+			if (neighbour == 0 || neighbourData.closed || neighbour == neighbourData.previous || neighbour->getType() == Tile::Type::Wall)
 			{
+				if (neighbour == 0) //invalid tiles
+				{
+					map.erase(neighbourIndex);
+				}
 				continue; //continue to next neighbour
 			}
 
-			int tenative_gScore = current->g + 10; //10 is cost between current and neighbour which always the same as no diagonals unless neighbour was a wall 
-			if (tenative_gScore <= neighbour->g)
+			int tenative_gScore = map[currentIndex].g + 10; //10 is cost between current and neighbour which always the same as no diagonals unless neighbour was a wall 
+			if (neighbourIndex == 868)
+			{
+				int test = 0;
+			}
+			if (tenative_gScore <= neighbourData.g)
 			{
 				//better path
-				neighbour->previous = current;
-				neighbour->g = tenative_gScore;
-				neighbour->f = neighbour->g + calculateHeuristic(neighbour, m_tiles[endIndex]);
+				neighbourData.previous = current;
+				neighbourData.g = tenative_gScore;
+				neighbourData.f = neighbourData.g + calculateHeuristic(neighbour, m_tiles[endIndex]);
 			}
-			if (neighbour->open == false)
+			if (neighbourData.open == false)
 			{
-				neighbour->open = true;
-				neighbour->m_colour = Colour(175, 238, 238, 255);
-				pq.push(neighbour); //we havnt fully evaluated this tile yet so push it
+				neighbourData.open = true;
+				neighbour->setColour(Colour(175, 238, 238, 255));
+				pq.push(std::pair<int, int>(neighbourIndex, neighbourData.f)); //we havnt fully evaluated this tile yet so push it
 			}
 		}
 	}

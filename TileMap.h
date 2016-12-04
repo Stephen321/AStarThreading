@@ -28,7 +28,7 @@ private:
 
 	struct TileData {
 		int g = std::numeric_limits<int>::max();
-		int f;
+		int f = std::numeric_limits<int>::max();
 		bool open;
 		bool closed;
 		Tile* previous;
@@ -37,9 +37,9 @@ private:
 	class TileCostComparer
 	{
 	public:
-		bool operator()(const Tile* t1, const Tile* t2)
+		bool operator()(const std::pair<int, int>& t1, const std::pair<int, int>& t2)
 		{
-			return (t1->f > t2->f);
+			return (t1.second> t2.second);
 		}
 	};
 };

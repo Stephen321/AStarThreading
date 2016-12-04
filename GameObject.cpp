@@ -62,3 +62,8 @@ GameObject::Type GameObject::getType() const
 	return m_type;
 }
 
+void GameObject::setColour(const Colour & c)
+{
+	m_colour = c;
+}
+
