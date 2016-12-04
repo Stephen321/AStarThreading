@@ -71,11 +71,12 @@ int targetY = 0;
 
 void Game::update()
 {
+	m_capTimer.start();
 	m_framesCount++;
-	if (SDL_GetTicks() > m_lastTicks + 1000) //every second
-	{
+	if (LTimer::gameTime() > m_lastTicks + 1000) //every second
+	{		
 		//set last ticks to the current ticks
-		m_lastTicks = SDL_GetTicks(); 
+		m_lastTicks = LTimer::gameTime(); 
 
 		//calculate fps 
 		m_framesPerSecond = m_framesCount;
@@ -85,9 +86,9 @@ void Game::update()
 		//update npc
 		m_npc->move();
 	}
-	if (SDL_GetTicks() > testTicks + 25)
+	if (LTimer::gameTime() > testTicks + 25)
 	{
-		testTicks = SDL_GetTicks();
+		testTicks = LTimer::gameTime();
 		if (flip)
 		{
 			x++;
@@ -179,6 +180,13 @@ void Game::update()
 		m_npc->setPos(Vector2i(x, y));
 		m_player->setPos(Vector2i((LEVEL_ONE - 1) - targetX, (LEVEL_ONE - 1) - targetY));
 		m_tileMap.getPath(Vector2i((LEVEL_ONE - 1) - targetX, (LEVEL_ONE - 1) - targetY), Vector2i(x, y));
+	}
+
+	int frameTicks = m_capTimer.getTicks();//time since start of frame
+	if (frameTicks < TICKS_PER_FRAMES)
+	{
+		//Wait remaining time before going to next frame
+		SDL_Delay(TICKS_PER_FRAMES - frameTicks);
 	}
 }
 

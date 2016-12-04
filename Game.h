@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 #include <vector>
+#include "LTimer.h"
 #include "Renderer.h""
 #include "Character.h"
 #include "TileMap.h"
@@ -30,6 +31,10 @@ private:
 	Uint32 m_lastTicks; //the last recorded time.
 	Uint32 m_framesPerSecond; //the current FPS.
 	Uint32 m_framesCount; //frames passed since the last recorded fps.
+
+	const int TICKS_PER_FRAMES = 10;
+	LTimer m_capTimer;
+
 
 	Character* m_player;
 	Character* m_npc;

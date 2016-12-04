@@ -78,6 +78,7 @@
   <ItemGroup>
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="LTimer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="TileMap.cpp" />
@@ -91,6 +92,9 @@
     <ClInclude Include="Debug.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="LTimer.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Tile.h" />
