@@ -34,6 +34,12 @@ private:
 	Character* m_player;
 	Character* m_npc;
 
+	Uint32 testTicks;
+	bool flip = true;
+	bool flipY = true;
+	bool targetFlip = true;
+	bool targetFlipY = true;
+
 	TileMap m_tileMap;
 };
 #endif

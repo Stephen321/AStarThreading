@@ -19,6 +19,7 @@ typedef struct BoundingBox {
 typedef struct Vector2f {
 	Vector2f(float _x, float _y) : x(_x), y(_y) {}
 	Vector2f() : x(0.f), y(0.f) {}
+	float magnitude() { return sqrt(x * x + y * y); }
 	float x;
 	float y;
 } Vector2f;

@@ -15,6 +15,7 @@ Game::~Game()
 {
 }
 
+
 bool Game::initialize(const char* title, int width, int height, int flags)
 {
 	if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
@@ -41,6 +42,8 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	Vector2f npcPosition = m_tileMap.coordsToPos(Vector2i(0, 0));
 	m_npc = new Character({ (int)npcPosition.x, (int)npcPosition.y, TILE_SIZE, TILE_SIZE });
 	
+
+	m_tileMap.getPath(m_tileMap.posToCoords(npcPosition), m_tileMap.posToCoords(playerPosition));
 	return true;
 }
 
@@ -61,6 +64,11 @@ void Game::render()
 	m_renderer.present();
 }
 
+int x = 0;
+int y = 0;
+int targetX = 0;
+int targetY = 0;
+
 void Game::update()
 {
 	m_framesCount++;
@@ -76,6 +84,101 @@ void Game::update()
 
 		//update npc
 		m_npc->move();
+	}
+	if (SDL_GetTicks() > testTicks + 25)
+	{
+		testTicks = SDL_GetTicks();
+		if (flip)
+		{
+			x++;
+			if (x == LEVEL_ONE - 1)
+			{
+				flip = !flip;
+				if (flipY)
+				{
+					y++;
+				}
+				else
+				{
+					y--;
+				}
+				if (y == LEVEL_ONE - 1)
+				{
+					flipY = !flipY;
+					if (targetFlip)
+					{
+						targetX++;
+					}
+					else
+					{
+						targetX--;
+					}
+					if (targetX == LEVEL_ONE - 1)
+					{
+						targetFlip = !targetFlip;
+						if (targetFlipY)
+						{
+							targetY++;
+						}
+						else
+						{
+							targetY--;
+						}
+						if (targetY == LEVEL_ONE - 1)
+						{
+							targetFlipY = !targetFlipY;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			x--;
+			if (x == 0)
+			{
+				flip = !flip;
+				if (flipY)
+				{
+					y++;
+				}
+				else
+				{
+					y--;
+				}
+				if (y == 0)
+				{
+					flipY = !flipY;
+					if (targetFlip)
+					{
+						targetX++;
+					}
+					else
+					{
+						targetX--;
+					}
+					if (targetX == 0)
+					{
+						targetFlip = !targetFlip;
+						if (targetFlipY)
+						{
+							targetY++;
+						}
+						else
+						{
+							targetY--;
+						}
+						if (targetY == 0)
+						{
+							targetFlipY = !targetFlipY;
+						}
+					}
+				}
+			}
+		}
+		m_npc->setPos(Vector2i(x, y));
+		m_player->setPos(Vector2i((LEVEL_ONE - 1) - targetX, (LEVEL_ONE - 1) - targetY));
+		m_tileMap.getPath(Vector2i((LEVEL_ONE - 1) - targetX, (LEVEL_ONE - 1) - targetY), Vector2i(x, y));
 	}
 }
 

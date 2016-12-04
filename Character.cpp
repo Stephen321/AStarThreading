@@ -20,3 +20,10 @@ void Character::move()
 		m_rect.y = (Border * 0.5f) + (target.y * TILE_SIZE);
 	}
 }
+
+
+void Character::setPos(const Vector2i& v)
+{
+	m_rect.x = v.x * TILE_SIZE;
+	m_rect.y = v.y * TILE_SIZE;
+}
