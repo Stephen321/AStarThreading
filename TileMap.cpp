@@ -60,15 +60,22 @@ std::vector<TileMap::Wall> TileMap::createWalls()
 	int tileHeight = m_length - 1;
 	int wallCount = levelData.getWalls();
 	int touchingCount = levelData.getTouchingWalls();
-	int maxDist = (tileHeight - (levelData.getCharSpawnWidth() * 2)) / (wallCount - 1);
-	int minDist = WorldConstants::MIN_WALL_DISTANCE;
+	int maxDist = (tileHeight - (levelData.getCharSpawnWidth() * 2)) / wallCount;
+	int lastOffset = levelData.getCharSpawnWidth();
 
 	for (int i = 0; i < wallCount; i++)
 	{
-		int offset = levelData.getCharSpawnWidth() + (maxDist * i); //TODO: need random walls (use minDist)
-		
-		//between rand min and max
-		
+		int offset;
+		if (i == 0)
+		{
+			offset = Helper::random(levelData.getCharSpawnWidth(), levelData.getCharSpawnWidth() + (maxDist * (i + 1)));
+		}
+		else
+		{
+			offset = Helper::random(lastOffset + WorldConstants::MIN_WALL_DISTANCE + 1, levelData.getCharSpawnWidth() + (maxDist * (i + 1)));
+		}
+		lastOffset = offset; 
+
 		int startY = Helper::random(WorldConstants::MIN_WALL_EDGE_GAP, WorldConstants::MAX_WALL_EDGE_GAP);
 		int endY = tileHeight - Helper::random(WorldConstants::MIN_WALL_EDGE_GAP, WorldConstants::MAX_WALL_EDGE_GAP);
 		if (touchingCount > 0 && rand() % 2 == 0)
@@ -82,9 +89,6 @@ std::vector<TileMap::Wall> TileMap::createWalls()
 				endY = tileHeight;
 			}
 			touchingCount--;
-		}
-		else
-		{
 		}
 		Wall w;
 		w.start = Vector2i(offset, startY);

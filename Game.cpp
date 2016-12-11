@@ -36,7 +36,7 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	
 
 	//initialize game
-	m_tileMap.reset(TileMap::MEDIUM);
+	m_tileMap.reset(TileMap::SMALL);
 	resetChars();
 	setNewPlayerTarget();
 	//m_tileMap.getPath(Helper::posToCoords(m_npcs[29].getPos()), Helper::posToCoords(m_player.getPos()));
@@ -145,13 +145,15 @@ void Game::setNewPlayerTarget()
 	Vector2i currentCoords = Helper::posToCoords(m_player.getPos());
 	Vector2i target(Helper::random(currentCoords.x - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.x + WorldConstants::MAX_P_TARGET_MOVES),
 					Helper::random(currentCoords.y - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.y + WorldConstants::MAX_P_TARGET_MOVES));
+	target.x = Helper::clamp(target.x, 0, m_tileMap.getLength());
+	target.y = Helper::clamp(target.y, 0, m_tileMap.getLength());
 	while (m_tileMap.getTypeAt(target) == Tile::Type::Wall)
 	{
 		target = Vector2i(Helper::random(currentCoords.x - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.x + WorldConstants::MAX_P_TARGET_MOVES),
 						  Helper::random(currentCoords.y - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.y + WorldConstants::MAX_P_TARGET_MOVES));
+		target.x = Helper::clamp(target.x, 0, m_tileMap.getLength());
+		target.y = Helper::clamp(target.y, 0, m_tileMap.getLength());
 	}
-	target.x = Helper::clamp(target.x, 0, m_tileMap.getLength());
-	target.y = Helper::clamp(target.y, 0, m_tileMap.getLength());
 	m_player.setTilePath(m_tileMap.getPath(currentCoords, target));
 }
 

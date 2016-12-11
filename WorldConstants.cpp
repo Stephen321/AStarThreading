@@ -33,7 +33,7 @@ namespace WorldConstants
 	//level walls
 	const int MAX_WALL_EDGE_GAP = 5;
 	const int MIN_WALL_EDGE_GAP = 2;
-	const int MIN_WALL_DISTANCE = 4;
+	const int MIN_WALL_DISTANCE = 3;
 	const int LEVEL_ONE_WALLS = 3;
 	const int LEVEL_TWO_WALLS = 6;
 	const int LEVEL_THREE_WALLS = 18;
