@@ -1,12 +1,25 @@
 #include "Character.h"
 
-Character::Character(const SDL_Rect& rect, Type type)
-	: GameObject(type, rect)
+Character::Character(const Vector2f& pos, Type type)
+	: GameObject(type, pos)
 {
 	m_rect.x += Border * 0.5f;
 	m_rect.y += Border * 0.5f;
 	m_rect.w -= Border;
 	m_rect.h -= Border;
+}
+
+Character::Character()
+	: GameObject(Type::NPC)
+{
+}
+
+Character & Character::operator=(const Character & rhs)
+{
+	m_colour = rhs.getColour();
+	m_rect = rhs.getRect();
+	m_type = rhs.getType();
+	return *this;
 }
 
 void Character::move()
@@ -26,4 +39,14 @@ void Character::setPos(const Vector2i& v)
 {
 	m_rect.x = v.x * WorldConstants::TILE_SIZE;
 	m_rect.y = v.y * WorldConstants::TILE_SIZE;
+}
+
+void Character::setTilePath(std::vector<Vector2i> tilePath)
+{
+	m_tilePath = tilePath;
+}
+
+int Character::remainingPathPoints() const
+{
+	return m_tilePath.size();
 }

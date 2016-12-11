@@ -3,6 +3,7 @@
 Renderer::Renderer()
 	: m_window(NULL)
 	, m_renderer(NULL)
+	, m_currentZoom(1)
 {
 }
 
@@ -21,8 +22,10 @@ bool Renderer::initialize(const char* title, int width, int height, int flags)
 			//DEBUG_MSG("Renderer creation success");
 			/*width *= 2.5f;
 			height *= 2.5f;*/
-			m_cameraBounds.w = width / WorldConstants::TILE_SIZE;
-			m_cameraBounds.h = height / WorldConstants::TILE_SIZE;
+			m_cameraSize.x = width;
+			m_cameraSize.y = height;
+			m_cameraBounds.w = m_cameraSize.x / WorldConstants::TILE_SIZE;
+			m_cameraBounds.h = m_cameraSize.y / WorldConstants::TILE_SIZE;
 			m_camera = { m_cameraBounds.x, m_cameraBounds.y, width, height }; //half the size of the window
 			SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 			return true;
@@ -105,6 +108,19 @@ void Renderer::moveCamera(int xDir, int yDir)
 	m_camera.y += yDir * WorldConstants::TILE_SIZE;
 	m_cameraBounds.x += xDir;
 	m_cameraBounds.y += yDir;
+}
+
+void Renderer::zoom(int dir)
+{
+	m_currentZoom += ZOOM_AMOUNT * dir;
+	if (m_currentZoom < 0)
+	{
+		m_currentZoom = 0;
+	}
+	m_cameraBounds.w = (m_currentZoom * m_cameraSize.x) / WorldConstants::TILE_SIZE;
+	m_cameraBounds.h = (m_currentZoom * m_cameraSize.y) / WorldConstants::TILE_SIZE;
+	m_camera.w = m_cameraBounds.w * WorldConstants::TILE_SIZE; //ensure camera size is always divisible by TILE_SIZE
+	m_camera.h = m_cameraBounds.h * WorldConstants::TILE_SIZE;
 }
 
 BoundingBox Renderer::getCameraBounds() const

@@ -1,9 +1,9 @@
 #include "GameObject.h"
 
-GameObject::GameObject(Type type, const SDL_Rect& rect)
+GameObject::GameObject(Type type, const Vector2f& pos)
 	: m_type(type)
-	, m_rect(rect)
 {
+	m_rect = { (int)pos.x, (int)pos.y, WorldConstants::TILE_SIZE, WorldConstants::TILE_SIZE };
 	resetColour();
 }
 
@@ -59,6 +59,16 @@ void GameObject::render(const Renderer& r) const
 Vector2f GameObject::getPos() const
 {
 	return Vector2f(m_rect.x, m_rect.y);
+}
+
+SDL_Rect GameObject::getRect() const
+{
+	return m_rect;
+}
+
+Colour GameObject::getColour() const
+{
+	return m_colour;
 }
 
 GameObject::Type GameObject::getType() const

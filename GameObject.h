@@ -14,9 +14,11 @@ public:
 		NPC,
 		Player
 	};
-	GameObject(Type type, const SDL_Rect& rect);
+	GameObject(Type type, const Vector2f& pos = Vector2f());
 	virtual void render(const Renderer& r) const override;
 	Vector2f getPos() const;
+	Colour getColour() const;
+	SDL_Rect getRect() const;
 	Type getType() const;
 	void setColour(const Colour& c);
 	void resetColour();

@@ -36,18 +36,45 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	
 
 	//initialize game
-	m_tileMap.reset(TileMap::SMALL);
-	Vector2f playerPosition = m_tileMap.coordsToPos(Vector2i(m_tileMap.getSize() - 1, m_tileMap.getSize() - 1));
-	m_player = new Character({ (int)playerPosition.x, (int)playerPosition.y, WorldConstants::TILE_SIZE, WorldConstants::TILE_SIZE }, Character::Type::Player);
-
-	Vector2f npcPosition = m_tileMap.coordsToPos(Vector2i(0, 0));
-	m_npc = new Character({ (int)npcPosition.x, (int)npcPosition.y, WorldConstants::TILE_SIZE, WorldConstants::TILE_SIZE });
-	
-
-	m_tileMap.getPath(m_tileMap.posToCoords(npcPosition), m_tileMap.posToCoords(playerPosition));
+	m_tileMap.reset(TileMap::MEDIUM);
+	resetChars();
+	setNewPlayerTarget();
+	//m_tileMap.getPath(Helper::posToCoords(m_npcs[29].getPos()), Helper::posToCoords(m_player.getPos()));
 	return true;
 }
 
+void Game::resetChars()
+{
+	const LevelData levelData = WorldConstants::levels[m_tileMap.getSize()]; //current level data
+	int charSpawnWidth = levelData.getCharSpawnWidth();
+	int npcCount = levelData.getNpcCount();
+
+	//player positioned randomly between (0, charSpawnWidth) -> (0, levelHeight - charSpawnWidth)
+	Vector2f playerPosition = Helper::coordsToPos(Vector2i(rand() % charSpawnWidth, charSpawnWidth + (rand() % (int)(m_tileMap.getLength() - charSpawnWidth - 1))));
+	m_player = Character(playerPosition, Character::Type::Player);
+
+	//position npcs
+	m_npcs.clear();
+	int xOffset = m_tileMap.getLength() - charSpawnWidth;
+	int yOffset = rand() % charSpawnWidth;
+	bool indent = true;
+	for (int i = 0; i < npcCount; i++)
+	{
+		Vector2f pos = Helper::coordsToPos(Vector2i(xOffset, yOffset));
+		xOffset += 2;
+		if (xOffset >= m_tileMap.getLength())
+		{
+			xOffset = m_tileMap.getLength() - charSpawnWidth;
+			yOffset++;
+			if (indent)
+			{
+				xOffset++;
+			}
+			indent = !indent;
+		}
+		m_npcs.push_back(Character(pos));
+	}
+}
 
 void Game::loadContent()
 {
@@ -59,8 +86,11 @@ void Game::render()
 	m_renderer.clear();
 
 	m_renderer.render(&m_tileMap);
-	m_renderer.render(m_player);
-	m_renderer.render(m_npc);
+	m_renderer.render(&m_player);
+	for (const Character& npc : m_npcs)
+	{
+		m_renderer.render(&npc);
+	}
 
 	m_renderer.present();
 }
@@ -75,120 +105,54 @@ void Game::update()
 	m_capTimer.start();
 	m_framesCount++;
 	if (LTimer::gameTime() > m_lastTicks + 1000) //every second
-	{		
+	{
 		//set last ticks to the current ticks
-		m_lastTicks = LTimer::gameTime(); 
+		m_lastTicks = LTimer::gameTime();
 
 		//calculate fps 
 		m_framesPerSecond = m_framesCount;
-		std::cout << "FPS: " << m_framesPerSecond << std::endl;
+		//std::cout << "FPS: " << m_framesPerSecond << std::endl;
 		m_framesCount = 0;
-
-		//update npc
-		m_npc->move();
 	}
-	if (LTimer::gameTime() > testTicks + 25)
+
+	if (LTimer::gameTime() > m_charUpdateTicks + WorldConstants::TICKS_PER_CHAR_UPDATE) 
 	{
-		testTicks = LTimer::gameTime();
-		if (flip)
+		//set last ticks to the current ticks
+		m_charUpdateTicks = LTimer::gameTime();
+		for (Character& npc : m_npcs)
 		{
-			x++;
-			if (x == WorldConstants::LEVEL_ONE_LENGTH -1)
-			{
-				flip = !flip;
-				if (flipY)
-				{
-					y++;
-				}
-				else
-				{
-					y--;
-				}
-				if (y == WorldConstants::LEVEL_ONE_LENGTH - 1)
-				{
-					flipY = !flipY;
-					if (targetFlip)
-					{
-						targetX++;
-					}
-					else
-					{
-						targetX--;
-					}
-					if (targetX == WorldConstants::LEVEL_ONE_LENGTH - 1)
-					{
-						targetFlip = !targetFlip;
-						if (targetFlipY)
-						{
-							targetY++;
-						}
-						else
-						{
-							targetY--;
-						}
-						if (targetY == WorldConstants::LEVEL_ONE_LENGTH - 1)
-						{
-							targetFlipY = !targetFlipY;
-						}
-					}
-				}
-			}
+			npc.move();
 		}
-		else
-		{
-			x--;
-			if (x == 0)
-			{
-				flip = !flip;
-				if (flipY)
-				{
-					y++;
-				}
-				else
-				{
-					y--;
-				}
-				if (y == 0)
-				{
-					flipY = !flipY;
-					if (targetFlip)
-					{
-						targetX++;
-					}
-					else
-					{
-						targetX--;
-					}
-					if (targetX == 0)
-					{
-						targetFlip = !targetFlip;
-						if (targetFlipY)
-						{
-							targetY++;
-						}
-						else
-						{
-							targetY--;
-						}
-						if (targetY == 0)
-						{
-							targetFlipY = !targetFlipY;
-						}
-					}
-				}
-			}
-		}
-		m_npc->setPos(Vector2i(x, y));
-		m_player->setPos(Vector2i((WorldConstants::LEVEL_ONE_LENGTH - 1) - targetX, (WorldConstants::LEVEL_ONE_LENGTH - 1) - targetY));
-		m_tileMap.getPath(Vector2i((WorldConstants::LEVEL_ONE_LENGTH - 1) - targetX, (WorldConstants::LEVEL_ONE_LENGTH - 1) - targetY), Vector2i(x, y));
+		m_player.move();
+	}
+
+	if (m_player.remainingPathPoints() == 0)
+	{
+		setNewPlayerTarget();
 	}
 
 	int frameTicks = m_capTimer.getTicks();//time since start of frame
-	if (frameTicks < TICKS_PER_FRAMES)
+	if (frameTicks < WorldConstants::TICKS_PER_FRAMES)
 	{
 		//Wait remaining time before going to next frame
-		SDL_Delay(TICKS_PER_FRAMES - frameTicks);
+		SDL_Delay(WorldConstants::TICKS_PER_FRAMES - frameTicks);
 	}
+}
+
+void Game::setNewPlayerTarget()
+{
+	//get random target for player within how ever many moves the player makes before we next update its path (TICKS_PER_PLAYER_UPDATE / 1000)
+	Vector2i currentCoords = Helper::posToCoords(m_player.getPos());
+	Vector2i target(Helper::random(currentCoords.x - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.x + WorldConstants::MAX_P_TARGET_MOVES),
+					Helper::random(currentCoords.y - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.y + WorldConstants::MAX_P_TARGET_MOVES));
+	while (m_tileMap.getTypeAt(target) == Tile::Type::Wall)
+	{
+		target = Vector2i(Helper::random(currentCoords.x - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.x + WorldConstants::MAX_P_TARGET_MOVES),
+						  Helper::random(currentCoords.y - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.y + WorldConstants::MAX_P_TARGET_MOVES));
+	}
+	target.x = Helper::clamp(target.x, 0, m_tileMap.getLength());
+	target.y = Helper::clamp(target.y, 0, m_tileMap.getLength());
+	m_player.setTilePath(m_tileMap.getPath(currentCoords, target));
 }
 
 void Game::handleEvents()
@@ -197,28 +161,41 @@ void Game::handleEvents()
 
 	while (SDL_PollEvent(&event))
 	{
-		switch(event.type)
-			case SDL_KEYDOWN:
-				switch(event.key.keysym.sym)
-				{
-				case SDLK_ESCAPE:
-					m_running = false;
-					break;
-				case SDLK_UP:
-					m_renderer.moveCamera(0, -1);
-					break;
-				case SDLK_DOWN:
-					m_renderer.moveCamera(0, 1);
-					break;
-				case SDLK_LEFT:
-					m_renderer.moveCamera(-1, 0);
-					break;
-				case SDLK_RIGHT:
-					m_renderer.moveCamera(1, 0);
-					break;
-				default:
-					break;
-				}
+		switch (event.type)
+		{
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_ESCAPE:
+				m_running = false;
+				break;
+			case SDLK_UP:
+				m_renderer.moveCamera(0, -1);
+				break;
+			case SDLK_DOWN:
+				m_renderer.moveCamera(0, 1);
+				break;
+			case SDLK_LEFT:
+				m_renderer.moveCamera(-1, 0);
+				break;
+			case SDLK_RIGHT:
+				m_renderer.moveCamera(1, 0);
+				break;
+			default:
+				break;
+			}
+			break;
+		case SDL_MOUSEWHEEL:
+			if (event.wheel.y < 0)
+			{
+				m_renderer.zoom(1);
+			}
+			else if (event.wheel.y > 0)
+			{
+				m_renderer.zoom(-1);
+			}
+			break;
+		}
 	}
 }
 
@@ -236,8 +213,7 @@ void Game::cleanUp()
 {
 	DEBUG_MSG("Cleaning Up");
 	m_renderer.cleanUp();
-	delete m_player;
+	m_npcs.clear();
 	m_tileMap.cleanUpTiles();
 	SDL_Quit();
 }
-

@@ -2,7 +2,6 @@
 
 TileMap::TileMap() 
 	: m_length(0)
-	, m_topLeftCoords(Vector2i(0, 0))
 {
 
 }
@@ -19,7 +18,8 @@ void TileMap::reset(Size size)
 
 	//create new tiles
 	m_tiles = new Tile*[m_length * m_length];
-	SDL_Rect r = { m_topLeftCoords.x * WorldConstants::TILE_SIZE, m_topLeftCoords.y * WorldConstants::TILE_SIZE, WorldConstants::TILE_SIZE, WorldConstants::TILE_SIZE };
+
+	Vector2f pos;
 
 	//create random walls for the current sized level
 	std::vector<Wall> walls = createWalls();
@@ -43,11 +43,11 @@ void TileMap::reset(Size size)
 			{
 				type = Tile::Type::Wall;
 			}
-			m_tiles[x + (y * m_length)] = new Tile(type, r);
-			r.x += WorldConstants::TILE_SIZE;
+			m_tiles[x + (y * m_length)] = new Tile(type, pos);
+			pos.x += WorldConstants::TILE_SIZE;
 		}
-		r.x = m_topLeftCoords.x * WorldConstants::TILE_SIZE;
-		r.y += WorldConstants::TILE_SIZE;
+		pos.x = 0;
+		pos.y += WorldConstants::TILE_SIZE;
 	}
 }		
 
@@ -68,8 +68,9 @@ std::vector<TileMap::Wall> TileMap::createWalls()
 		int offset = levelData.getCharSpawnWidth() + (maxDist * i); //TODO: need random walls (use minDist)
 		
 		//between rand min and max
-		int startY = WorldConstants::MIN_WALL_EDGE_GAP + (rand() % (int)(WorldConstants::MAX_WALL_EDGE_GAP - WorldConstants::MIN_WALL_EDGE_GAP + 1));
-		int endY = tileHeight - (WorldConstants::MIN_WALL_EDGE_GAP + (rand() % (int)(WorldConstants::MAX_WALL_EDGE_GAP - WorldConstants::MIN_WALL_EDGE_GAP + 1)));
+		
+		int startY = Helper::random(WorldConstants::MIN_WALL_EDGE_GAP, WorldConstants::MAX_WALL_EDGE_GAP);
+		int endY = tileHeight - Helper::random(WorldConstants::MIN_WALL_EDGE_GAP, WorldConstants::MAX_WALL_EDGE_GAP);
 		if (touchingCount > 0 && rand() % 2 == 0)
 		{
 			if (rand() % 2 == 0)
@@ -132,8 +133,6 @@ void TileMap::cleanUpTiles()
 void TileMap::render(const Renderer& r) const
 {
 	BoundingBox visibleBounds = r.getCameraBounds();
-	visibleBounds.x -= m_topLeftCoords.x;
-	visibleBounds.y -= m_topLeftCoords.y;
 	if (visibleBounds.x < 0)
 	{
 		visibleBounds.w += visibleBounds.x;
@@ -160,27 +159,12 @@ void TileMap::render(const Renderer& r) const
 	}
 }
 
-Vector2f TileMap::coordsToPos(const Vector2i& coords) const
+TileMap::Size TileMap::getSize() const
 {
-	Vector2f pos;
-
-	pos.x = (coords.x + m_topLeftCoords.x) * WorldConstants::TILE_SIZE;
-	pos.y = (coords.y + m_topLeftCoords.y) * WorldConstants::TILE_SIZE;
-
-	return pos;
+	return m_size;
 }
 
-Vector2i TileMap::posToCoords(const Vector2f& pos) const
-{
-	Vector2i coords;
-
-	coords.x = (pos.x / WorldConstants::TILE_SIZE) - m_topLeftCoords.x;
-	coords.y = (pos.y / WorldConstants::TILE_SIZE) - m_topLeftCoords.y;
-
-	return coords;
-}
-
-int TileMap::getSize() const
+int TileMap::getLength() const
 {
 	return m_length;
 }
@@ -198,8 +182,8 @@ std::vector<Vector2i> TileMap::getPath(const Vector2i& start, const Vector2i& en
 	//reset all
 	for (int i = 0; i < m_length * m_length; i++)
 	{
-		int x1 = posToCoords(m_tiles[i]->getPos()).x;
-		int y1 = posToCoords(m_tiles[i]->getPos()).y;
+		int x1 = Helper::posToCoords(m_tiles[i]->getPos()).x;
+		int y1 = Helper::posToCoords(m_tiles[i]->getPos()).y;
 		m_tiles[i]->resetColour();
 	}
 
@@ -229,16 +213,17 @@ std::vector<Vector2i> TileMap::getPath(const Vector2i& start, const Vector2i& en
 	{
 		int currentIndex = pq.top().first;
 		Tile* current = m_tiles[currentIndex];
-		Vector2i currentCoords = posToCoords(current->getPos());
+		Vector2i currentCoords = Helper::posToCoords(current->getPos());
 		if (current == m_tiles[endIndex])
 		{
 			for (TileData td = map[currentIndex]; current != m_tiles[startIndex]; current = td.previous)
 			{
 				current->setColour(Colour(0, 255, 0, 255));
 				//TODO: better way to do the path creation
-				currentCoords = posToCoords(current->getPos());
+				currentCoords = Helper::posToCoords(current->getPos());
 				int index = currentCoords.x + (currentCoords.y * m_length);
 				td = map[index];
+				path.push_back(currentCoords);
 			}
 			return  path;
 		}
@@ -284,4 +269,9 @@ std::vector<Vector2i> TileMap::getPath(const Vector2i& start, const Vector2i& en
 	}
 
 	return  path;
+}
+
+Tile::Type TileMap::getTypeAt(const Vector2i & coords)
+{
+	return m_tiles[coords.x + (coords.y * m_size)]->getType();
 }

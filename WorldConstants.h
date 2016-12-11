@@ -16,6 +16,14 @@ namespace WorldConstants
 	extern const int LEVEL_ONE_CHAR_SPAWN_WIDTH;
 	extern const int LEVEL_TWO_CHAR_SPAWN_WIDTH;
 	extern const int LEVEL_THREE_CHAR_SPAWN_WIDTH;
+	extern const int LEVEL_ONE_NPC_COUNT;
+	extern const int LEVEL_TWO_NPC_COUNT;
+	extern const int LEVEL_THREE_NPC_COUNT;
+	extern const int MAX_P_TARGET_MOVES;
+
+	//timing
+	extern const int TICKS_PER_FRAMES;
+	extern const int TICKS_PER_CHAR_UPDATE;
 
 	//tile
 	extern const int TILE_SIZE;

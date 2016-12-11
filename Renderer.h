@@ -19,12 +19,17 @@ public:
 	void drawRect(SDL_Rect r, const Colour& fillColour, const Colour& outlineColour = Colour()) const;
 	void present();
 	void moveCamera(int xDir, int yDir);
+	void zoom(int dir);
 	BoundingBox getCameraBounds() const;
 
 private:
 	SDL_Window* m_window;
 	SDL_Renderer* m_renderer;
 	SDL_Rect m_camera;
+	const float ZOOM_AMOUNT = 0.025f;
+	float m_currentZoom;
+	Vector2i m_cameraSize;
+
 	float m_windowWidth;
 	float m_windowHeight;
 	BoundingBox m_cameraBounds;

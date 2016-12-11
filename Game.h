@@ -6,6 +6,7 @@
 #include "Character.h"
 #include "TileMap.h"
 
+
 class Game
 {
 public:
@@ -20,6 +21,9 @@ public:
 	bool isRunning();
 	void cleanUp();
 private:
+	void resetChars();
+	void setNewPlayerTarget();
+
 	Renderer m_renderer;
 	bool m_running;
 
@@ -28,14 +32,14 @@ private:
 	Uint32 m_framesPerSecond; //the current FPS.
 	Uint32 m_framesCount; //frames passed since the last recorded fps.
 
-	const int TICKS_PER_FRAMES = 10;
 	LTimer m_capTimer;
 
+	Uint32 m_charUpdateTicks;
 
-	Character* m_player;
-	Character* m_npc;
 
-	Uint32 testTicks;
+	Character m_player;
+	std::vector<Character> m_npcs;
+
 	bool flip = true;
 	bool flipY = true;
 	bool targetFlip = true;

@@ -5,6 +5,7 @@
 #include <map>
 #include <numeric>
 #include "Tile.h"
+#include "HelperFunctions.h"
 
 class TileMap : public Drawable
 {
@@ -20,11 +21,10 @@ public:
 	void reset(Size size);
 	void cleanUpTiles();
 	void render(const Renderer& r) const override;
-	Vector2f coordsToPos(const Vector2i& coords) const;
-	Vector2i posToCoords(const Vector2f& pos) const;
-	int getSize() const;
-
+	Size getSize() const;
+	int getLength() const;
 	std::vector<Vector2i> getPath(const Vector2i& start, const Vector2i& end);
+	Tile::Type getTypeAt(const Vector2i& coords);
 
 private:
 	struct Wall {
@@ -32,7 +32,6 @@ private:
 		Vector2i end;
 	};
 
-	Vector2i m_topLeftCoords;
 	Size m_size;
 	int m_length;
 	Tile ** m_tiles;

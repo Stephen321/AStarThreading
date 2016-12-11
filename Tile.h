@@ -6,7 +6,7 @@
 class Tile : public GameObject
 {
 public:
-	Tile(Type type, const SDL_Rect& rect);
+	Tile(Type type, const Vector2f& rect);
 };
 
 #endif
