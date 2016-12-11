@@ -2,9 +2,17 @@
 #define BASICTYPES_H
 
 typedef struct Colour {
-	Colour() : r(0), g(0), b(0), a(0) {}
+	Colour() : r(0), g(0), b(0), a(255) {}
 	Colour(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a)
 		: r(_r), g(_g), b(_b), a(_a) {}
+	Colour(int hex) //from hex value
+	{
+		int test = ((hex >> 16) & 0xFF) / 255.0;
+		r = ((hex >> 16) & 0xFF);  // Extract the RR byte
+		g = ((hex >> 8) & 0xFF);   // Extract the GG byte
+		b = ((hex) & 0xFF);        // Extract the BB byte
+		a = 255;
+	}
 	unsigned char r, g, b, a;
 
 } Colour;

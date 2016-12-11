@@ -22,10 +22,6 @@ public:
 private:
 	Renderer m_renderer;
 	bool m_running;
-	const int LEVEL_ONE = 30;
-	const int LEVEL_TWO = 100;
-	const int LEVEL_THREE = 1000;
-
 
 	//calcluate average of last 10 frame times in order to display average FPS over last second
 	Uint32 m_lastTicks; //the last recorded time.

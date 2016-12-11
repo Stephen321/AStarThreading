@@ -4,8 +4,13 @@ GameObject::GameObject(Type type, const SDL_Rect& rect)
 	: m_type(type)
 	, m_rect(rect)
 {
-	int x = m_rect.x / TILE_SIZE;
-	int y = m_rect.y / TILE_SIZE;
+	resetColour();
+}
+
+void GameObject::resetColour()
+{
+	int x = m_rect.x / WorldConstants::TILE_SIZE;
+	int y = m_rect.y / WorldConstants::TILE_SIZE;
 	switch (m_type)
 	{
 	case Type::Normal:
@@ -13,34 +18,33 @@ GameObject::GameObject(Type type, const SDL_Rect& rect)
 		{
 			if (y % 2 == 0)
 			{
-				m_colour = Colour(200, 200, 200, 255);
+				m_colour = Colour(WorldConstants::NORMAL_COLOUR_ONE);
 			}
 			else
 			{
-				m_colour = Colour(70, 0, 160, 255);
+				m_colour = Colour(WorldConstants::NORMAL_COLOUR_TWO);
 			}
 		}
 		else
 		{
 			if (y % 2 == 0)
 			{
-				m_colour = Colour(70, 0, 160, 255);
+				m_colour = Colour(WorldConstants::NORMAL_COLOUR_TWO);
 			}
 			else
 			{
-				m_colour = Colour(200, 200, 200, 255);
+				m_colour = Colour(WorldConstants::NORMAL_COLOUR_ONE);
 			}
 		}
-		m_colour = Colour(240, 240, 240, 255); //TODO: remove this
 		break;
 	case Type::Wall:
-		m_colour = Colour(0, 0, 0, 255);
+		m_colour = Colour(WorldConstants::WALL_COLOUR);
 		break;
 	case Type::Player:
-		m_colour = Colour(255, 0, 0, 255);
+		m_colour = Colour(WorldConstants::PLAYER_COLOUR);
 		break;
 	case Type::NPC:
-		m_colour = Colour(0, 0, 255, 255);
+		m_colour = Colour(WorldConstants::NPC_COLOUR);
 		break;
 	default:
 		break;
@@ -49,7 +53,7 @@ GameObject::GameObject(Type type, const SDL_Rect& rect)
 
 void GameObject::render(const Renderer& r) const
 {
-	r.drawRect(m_rect, m_colour, Colour(0, 0, 0, 255));
+	r.drawRect(m_rect, m_colour);
 }
 
 Vector2f GameObject::getPos() const

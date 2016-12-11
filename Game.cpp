@@ -18,6 +18,7 @@ Game::~Game()
 
 bool Game::initialize(const char* title, int width, int height, int flags)
 {
+	srand(time(NULL));
 	if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
 	{
 		DEBUG_MSG("SDL Init success");
@@ -35,12 +36,12 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	
 
 	//initialize game
-	m_tileMap.reset(LEVEL_ONE);
+	m_tileMap.reset(TileMap::SMALL);
 	Vector2f playerPosition = m_tileMap.coordsToPos(Vector2i(m_tileMap.getSize() - 1, m_tileMap.getSize() - 1));
-	m_player = new Character({ (int)playerPosition.x, (int)playerPosition.y, TILE_SIZE, TILE_SIZE }, Character::Type::Player);
+	m_player = new Character({ (int)playerPosition.x, (int)playerPosition.y, WorldConstants::TILE_SIZE, WorldConstants::TILE_SIZE }, Character::Type::Player);
 
 	Vector2f npcPosition = m_tileMap.coordsToPos(Vector2i(0, 0));
-	m_npc = new Character({ (int)npcPosition.x, (int)npcPosition.y, TILE_SIZE, TILE_SIZE });
+	m_npc = new Character({ (int)npcPosition.x, (int)npcPosition.y, WorldConstants::TILE_SIZE, WorldConstants::TILE_SIZE });
 	
 
 	m_tileMap.getPath(m_tileMap.posToCoords(npcPosition), m_tileMap.posToCoords(playerPosition));
@@ -92,7 +93,7 @@ void Game::update()
 		if (flip)
 		{
 			x++;
-			if (x == LEVEL_ONE - 1)
+			if (x == WorldConstants::LEVEL_ONE_LENGTH -1)
 			{
 				flip = !flip;
 				if (flipY)
@@ -103,7 +104,7 @@ void Game::update()
 				{
 					y--;
 				}
-				if (y == LEVEL_ONE - 1)
+				if (y == WorldConstants::LEVEL_ONE_LENGTH - 1)
 				{
 					flipY = !flipY;
 					if (targetFlip)
@@ -114,7 +115,7 @@ void Game::update()
 					{
 						targetX--;
 					}
-					if (targetX == LEVEL_ONE - 1)
+					if (targetX == WorldConstants::LEVEL_ONE_LENGTH - 1)
 					{
 						targetFlip = !targetFlip;
 						if (targetFlipY)
@@ -125,7 +126,7 @@ void Game::update()
 						{
 							targetY--;
 						}
-						if (targetY == LEVEL_ONE - 1)
+						if (targetY == WorldConstants::LEVEL_ONE_LENGTH - 1)
 						{
 							targetFlipY = !targetFlipY;
 						}
@@ -178,8 +179,8 @@ void Game::update()
 			}
 		}
 		m_npc->setPos(Vector2i(x, y));
-		m_player->setPos(Vector2i((LEVEL_ONE - 1) - targetX, (LEVEL_ONE - 1) - targetY));
-		m_tileMap.getPath(Vector2i((LEVEL_ONE - 1) - targetX, (LEVEL_ONE - 1) - targetY), Vector2i(x, y));
+		m_player->setPos(Vector2i((WorldConstants::LEVEL_ONE_LENGTH - 1) - targetX, (WorldConstants::LEVEL_ONE_LENGTH - 1) - targetY));
+		m_tileMap.getPath(Vector2i((WorldConstants::LEVEL_ONE_LENGTH - 1) - targetX, (WorldConstants::LEVEL_ONE_LENGTH - 1) - targetY), Vector2i(x, y));
 	}
 
 	int frameTicks = m_capTimer.getTicks();//time since start of frame

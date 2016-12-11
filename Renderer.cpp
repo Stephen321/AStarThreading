@@ -21,8 +21,8 @@ bool Renderer::initialize(const char* title, int width, int height, int flags)
 			//DEBUG_MSG("Renderer creation success");
 			/*width *= 2.5f;
 			height *= 2.5f;*/
-			m_cameraBounds.w = width / TILE_SIZE;
-			m_cameraBounds.h = height / TILE_SIZE;
+			m_cameraBounds.w = width / WorldConstants::TILE_SIZE;
+			m_cameraBounds.h = height / WorldConstants::TILE_SIZE;
 			m_camera = { m_cameraBounds.x, m_cameraBounds.y, width, height }; //half the size of the window
 			SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
 			return true;
@@ -101,8 +101,8 @@ SDL_Rect Renderer::applyCameraTransformation(const SDL_Rect& r) const
 
 void Renderer::moveCamera(int xDir, int yDir)
 {
-	m_camera.x += xDir * TILE_SIZE;
-	m_camera.y += yDir * TILE_SIZE;
+	m_camera.x += xDir * WorldConstants::TILE_SIZE;
+	m_camera.y += yDir * WorldConstants::TILE_SIZE;
 	m_cameraBounds.x += xDir;
 	m_cameraBounds.y += yDir;
 }

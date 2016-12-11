@@ -19,6 +19,7 @@ public:
 	Vector2f getPos() const;
 	Type getType() const;
 	void setColour(const Colour& c);
+	void resetColour();
 
 protected:
 	Colour m_colour;

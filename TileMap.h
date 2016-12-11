@@ -9,8 +9,15 @@
 class TileMap : public Drawable
 {
 public:
+	enum Size
+	{
+		SMALL = 0,
+		MEDIUM,
+		LARGE
+
+	};
 	TileMap();
-	void reset(int size);
+	void reset(Size size);
 	void cleanUpTiles();
 	void render(const Renderer& r) const override;
 	Vector2f coordsToPos(const Vector2i& coords) const;
@@ -20,11 +27,19 @@ public:
 	std::vector<Vector2i> getPath(const Vector2i& start, const Vector2i& end);
 
 private:
+	struct Wall {
+		Vector2i start;
+		Vector2i end;
+	};
+
 	Vector2i m_topLeftCoords;
-	int m_size;
+	Size m_size;
+	int m_length;
 	Tile ** m_tiles;
 
 	int calculateHeuristic(const Tile * current, const Tile * goal);
+	bool checkIfWall(const Wall& wall, const Vector2i& current);
+	std::vector<Wall> createWalls();
 
 	struct TileData {
 		int g = std::numeric_limits<int>::max();
