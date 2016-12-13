@@ -49,6 +49,7 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 
 void Game::reset(TileMap::Size size)
 {
+	ThreadPool::getInstance().restart();
 	m_tileMap.reset(size);
 	resetChars();
 }

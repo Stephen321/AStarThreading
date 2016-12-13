@@ -3,7 +3,7 @@
 namespace WorldConstants
 {
 	//threads
-	const int WORKER_COUNT = 7;
+	const int WORKER_COUNT = 4;
 
 	//colours as hex values
 	const int NORMAL_COLOUR_ONE =	0xC8C8C8; //200, 200, 200

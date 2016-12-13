@@ -19,7 +19,11 @@ public:
 	std::queue<std::function<void()>>& getJobsQueue();
 	SDL_mutex* getJobsLock();
 	SDL_sem* getJobsAvailable();
+	bool& getCanWork();
 	void addJob(std::function<void()> job);
+	void restart();
+	void incrementThreadsRunning();
+	void decrementThreadsRunning();
 	ThreadPool(ThreadPool const&) = delete;
 	void operator=(ThreadPool const&) = delete;
 private:
@@ -27,6 +31,9 @@ private:
 	~ThreadPool();
 	SDL_sem * m_jobsAvailable;
 	SDL_mutex* m_jobsLock;
+	SDL_mutex* m_threadsRunningLock;
+	bool m_canWork;
+	int m_threadsRunning;
 	std::vector<Worker*> m_workers;
 	std::queue<std::function<void()>> m_jobs; //queue of function pointers left to do
 };
@@ -35,8 +42,9 @@ class Worker
 {
 public:
 	Worker(int workerId)
+		: m_workerId(workerId)
 	{
-		m_thread = SDL_CreateThread(Worker::worker, "t" + workerId, (void*)NULL);
+		m_thread = SDL_CreateThread(Worker::worker, "t" + m_workerId, (void*)NULL);
 	}
 	~Worker()
 	{
@@ -51,13 +59,27 @@ public:
 		return m_thread;
 	}
 
+	void start()
+	{
+		m_thread = SDL_CreateThread(Worker::worker, "t" + m_workerId, (void*)NULL);
+	}
+
+	void wait()
+	{
+		int status;
+		SDL_WaitThread(m_thread, &status);
+		m_thread = NULL;
+		std::cout << "Thread " << SDL_ThreadID() << " waited with status: " << status << std::endl;
+	}
+
 	static int worker(void* ptr)
 	{
 		std::queue<std::function<void()>>& jobs = ThreadPool::getInstance().getJobsQueue();
 		SDL_sem* jobsAvailable = ThreadPool::getInstance().getJobsAvailable();
 		SDL_mutex* jobsLock = ThreadPool::getInstance().getJobsLock();
-
-		while (true)
+		bool& canWork = ThreadPool::getInstance().getCanWork();
+		ThreadPool::getInstance().incrementThreadsRunning();
+		while (canWork)
 		{
 			SDL_SemWait(jobsAvailable); //wait until there is a job available
 
@@ -81,10 +103,12 @@ public:
 
 			//std::cout << "hi from " << SDL_ThreadID() << std::endl;
 		}
+		ThreadPool::getInstance().decrementThreadsRunning();
 
 		return 0;
 	}
 private:
+	int m_workerId;
 	SDL_Thread* m_thread;
 };
 #endif
