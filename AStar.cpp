@@ -1,5 +1,7 @@
 #include "AStar.h"
 
+TileMap* AStar::tileMap = 0;
+
 float AStar::calculateHeuristic(const Tile * current, const Tile * goal)
 {
 	Vector2f v = goal->getPos();
@@ -8,20 +10,25 @@ float AStar::calculateHeuristic(const Tile * current, const Tile * goal)
 	return v.magnitude();
 }
 
-void AStar::setCharacterPath(const TileMap& tileMap, Character* character, const Vector2i& start, const Vector2i& end)
+void AStar::setTileMap(TileMap* _tileMap)
 {
-	int startIndex = start.x + (start.y * tileMap.getLength());
-	int endIndex = end.x + (end.y * tileMap.getLength());
+	tileMap = _tileMap;
+}
+
+void AStar::setCharacterPath(Character* character, const Vector2i& start, const Vector2i& end)
+{
+	int startIndex = start.x + (start.y * tileMap->getLength());
+	int endIndex = end.x + (end.y * tileMap->getLength());
 
 	std::map<int, Tile::Data> map;
 
 	map[startIndex].g = 0;
-	map[startIndex].f = calculateHeuristic(tileMap.getTile(startIndex), tileMap.getTile(endIndex));
+	map[startIndex].f = calculateHeuristic(tileMap->getTile(startIndex), tileMap->getTile(endIndex));
 
 	std::vector<Tile*> path;
 
 	bool pathFound = false;
-	if (tileMap.getTile(startIndex)->getType() == Tile::Type::Wall || tileMap.getTile(endIndex)->getType() == Tile::Type::Wall)
+	if (tileMap->getTile(startIndex)->getType() == Tile::Type::Wall || tileMap->getTile(endIndex)->getType() == Tile::Type::Wall)
 		pathFound = true;
 
 	std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, TileCostComparer> pq;
@@ -39,27 +46,27 @@ void AStar::setCharacterPath(const TileMap& tileMap, Character* character, const
 			int currentIndex = pq.top().first;
 			pq.pop();
 			map[currentIndex].closed = true;
-			Tile* current = tileMap.getTile(currentIndex);
+			Tile* current = tileMap->getTile(currentIndex);
 			Vector2i currentCoords = Helper::posToCoords(current->getPos());
-			if (current == tileMap.getTile(endIndex))
+			if (current == tileMap->getTile(endIndex))
 			{
-				for (Tile::Data td = map[currentIndex]; current != tileMap.getTile(startIndex); current = td.previous)
+				for (Tile::Data td = map[currentIndex]; current != tileMap->getTile(startIndex); current = td.previous)
 				{
 					//TODO: better way to do the path creation
 					currentCoords = Helper::posToCoords(current->getPos());
-					int index = currentCoords.x + (currentCoords.y * tileMap.getLength());
+					int index = currentCoords.x + (currentCoords.y * tileMap->getLength());
 					td = map[index];
-					path.push_back(tileMap.getTile(index));
+					path.push_back(tileMap->getTile(index));
 				}
 				pathFound = true;
 			}
 
 			for (int i = 0; i < 8; i += 2) //for each neighbour of current
 			{
-				int x = (currentCoords.x + neighbourOffets[i] >= 0 && currentCoords.x + neighbourOffets[i] < tileMap.getLength()) ? currentCoords.x + neighbourOffets[i] : -1;
-				int y = (currentCoords.y + neighbourOffets[i + 1] >= 0 && currentCoords.y + neighbourOffets[i + 1] < tileMap.getLength()) ? currentCoords.y + neighbourOffets[i + 1] : -1;
-				int neighbourIndex = x + (y * tileMap.getLength());
-				Tile* neighbour = (x == -1 || y == -1) ? 0 : tileMap.getTile(neighbourIndex);
+				int x = (currentCoords.x + neighbourOffets[i] >= 0 && currentCoords.x + neighbourOffets[i] < tileMap->getLength()) ? currentCoords.x + neighbourOffets[i] : -1;
+				int y = (currentCoords.y + neighbourOffets[i + 1] >= 0 && currentCoords.y + neighbourOffets[i + 1] < tileMap->getLength()) ? currentCoords.y + neighbourOffets[i + 1] : -1;
+				int neighbourIndex = x + (y * tileMap->getLength());
+				Tile* neighbour = (x == -1 || y == -1) ? 0 : tileMap->getTile(neighbourIndex);
 				bool notCreated = (map.find(neighbourIndex) == map.end());
 				Tile::Data& neighbourData = map[neighbourIndex];
 
@@ -82,7 +89,7 @@ void AStar::setCharacterPath(const TileMap& tileMap, Character* character, const
 					//better path
 					neighbourData.previous = current;
 					neighbourData.g = tenative_gScore;
-					neighbourData.f = neighbourData.g + calculateHeuristic(neighbour, tileMap.getTile(endIndex));
+					neighbourData.f = neighbourData.g + calculateHeuristic(neighbour, tileMap->getTile(endIndex));
 				}
 				if (neighbourData.open == false)
 				{

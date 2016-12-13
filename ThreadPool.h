@@ -7,6 +7,54 @@
 #include <functional>
 #include "WorldConstants.h"
 
+//class Job
+//{
+//public:
+//	typedef void(*ExecuteFunc)(void*);
+//	Job(ExecuteFunc func)
+//		: m_func(func)
+//	{
+//
+//	}
+//	Job(void* data, ExecuteFunc func)
+//		: m_data(data)
+//		, m_func(func)
+//	{
+//
+//	}
+//	virtual void execute() 
+//	{
+//		if (m_func == 0)
+//			return;
+//		m_func(m_data);
+//	}
+//protected:
+//	void* m_data;
+//	ExecuteFunc m_func;
+//};
+//
+//class AStarJob : public Job
+//{
+//public:
+//	typedef void(*AStarFunc)(Character*, const Vector2i&, const Vector2i&);
+//	AStarJob(Character* _character, const Vector2i& _start, const Vector2i& _end)
+//		: Job((ExecuteFunc)&AStar::setCharacterPath)
+//		, character(_character)
+//		, start(_start)
+//		, end(_end)
+//	{
+//	}
+//
+//	void execute() override
+//	{
+//		((AStarFunc)m_func)(character, start, end);
+//	}
+//private:
+//	Character* character;
+//	Vector2i start;
+//	Vector2i end;
+//};
+
 class Worker;
 class ThreadPool //singleton
 {
@@ -19,7 +67,7 @@ public:
 	std::queue<std::function<void()>>& getJobsQueue();
 	SDL_mutex* getJobsLock();
 	SDL_sem* getJobsAvailable();
-	bool& getCanWork();
+	SDL_bool getCanWork();
 	void addJob(std::function<void()> job);
 	void restart();
 	void incrementThreadsRunning();
@@ -32,7 +80,8 @@ private:
 	SDL_sem * m_jobsAvailable;
 	SDL_mutex* m_jobsLock;
 	SDL_mutex* m_threadsRunningLock;
-	bool m_canWork;
+	SDL_sem* m_canWorkSem;
+	SDL_bool m_canWork;
 	int m_threadsRunning;
 	std::vector<Worker*> m_workers;
 	std::queue<std::function<void()>> m_jobs; //queue of function pointers left to do
@@ -77,9 +126,9 @@ public:
 		std::queue<std::function<void()>>& jobs = ThreadPool::getInstance().getJobsQueue();
 		SDL_sem* jobsAvailable = ThreadPool::getInstance().getJobsAvailable();
 		SDL_mutex* jobsLock = ThreadPool::getInstance().getJobsLock();
-		bool& canWork = ThreadPool::getInstance().getCanWork();
+		//bool& canWork = ThreadPool::getInstance().getCanWork();
 		ThreadPool::getInstance().incrementThreadsRunning();
-		while (canWork)
+		while (true)//ThreadPool::getInstance().getCanWork())
 		{
 			SDL_SemWait(jobsAvailable); //wait until there is a job available
 
@@ -94,7 +143,6 @@ public:
 			}
 
 			SDL_UnlockMutex(jobsLock);
-
 			if (job != 0)
 			{
 				job();

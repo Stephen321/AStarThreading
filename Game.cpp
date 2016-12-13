@@ -12,8 +12,7 @@ Game::Game()
 	, m_lastPerformCounter(0)
 	, m_deltaTime(0)
 {
-
-	ThreadPool::getInstance(); //initializing
+	AStar::setTileMap(&m_tileMap); //make sure AStar has a pointer to tileMap
 }
 
 Game::~Game()
@@ -89,7 +88,7 @@ void Game::resetChars()
 
 	for (Character& c : m_npcs)
 	{
-		ThreadPool::getInstance().addJob(std::bind(&AStar::setCharacterPath, m_tileMap, &c, Helper::posToCoords(c.getPos()), Helper::posToCoords(m_player.getPos())));
+		ThreadPool::getInstance().addJob(std::bind(&AStar::setCharacterPath, &c, Helper::posToCoords(c.getPos()), Helper::posToCoords(m_player.getPos())));
 	}
 }
 

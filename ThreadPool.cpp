@@ -4,7 +4,7 @@ ThreadPool::ThreadPool()
 	: m_jobsAvailable(SDL_CreateSemaphore(0))
 	, m_jobsLock(SDL_CreateMutex())
 	, m_threadsRunningLock(SDL_CreateMutex())
-	, m_canWork(true)
+	, m_canWork(SDL_TRUE)
 	, m_jobs()
 {
 	for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
@@ -16,19 +16,19 @@ ThreadPool::ThreadPool()
 
 ThreadPool::~ThreadPool()
 {
-	m_canWork = false;
-	while (m_threadsRunning != 0)
-	{
+	//m_canWork = SDL_FALSE;
+	//for (int i = 0; i < m_workers.size(); i++)
+	//{
+	//	m_workers[i]->wait();
+	//}
+	//while (m_threadsRunning != 0)
+	//{
 
-	}
-	for (int i = 0; i < m_workers.size(); i++)
-	{
-		m_workers[i]->wait();
-	}
-	for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
-	{
-		delete m_workers[i];
-	}
+	//}
+	//for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
+	//{
+	//	delete m_workers[i];
+	//}
 	SDL_DestroySemaphore(m_jobsAvailable);
 	SDL_DestroyMutex(m_jobsLock);
 	SDL_DestroyMutex(m_threadsRunningLock);
@@ -43,6 +43,7 @@ void ThreadPool::incrementThreadsRunning()
 
 void ThreadPool::decrementThreadsRunning()
 {
+	std::cout << "decrementing" << std::endl;
 	SDL_LockMutex(m_threadsRunningLock);
 	m_threadsRunning--;
 	SDL_UnlockMutex(m_threadsRunningLock);
@@ -61,20 +62,20 @@ void ThreadPool::addJob(std::function<void()> job)
 
 void ThreadPool::restart()
 {
-	m_canWork = false;
-	while (m_threadsRunning != 0)
-	{
-
-	}
-	for (int i = 0; i < m_workers.size(); i++)
-	{
-		m_workers[i]->wait();
-	}
-	m_canWork = true;
-	for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
-	{
-		m_workers[i]->start();
-	}
+	//m_canWork = SDL_FALSE;
+	//for (int i = 0; i < m_workers.size(); i++)
+	//{
+	//	//m_workers[i]->wait();
+	//}
+	//while (m_threadsRunning != 0)
+	//{
+	//	//std::cout << "waiting for threads to...wait" << std::endl;
+	//}
+	//m_canWork = SDL_TRUE;
+	//for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
+	//{
+	//	m_workers[i]->start();
+	//}
 }
 
 std::queue<std::function<void()>>& ThreadPool::getJobsQueue()
@@ -92,7 +93,7 @@ SDL_sem* ThreadPool::getJobsAvailable()
 	return m_jobsAvailable;
 }
 
-bool & ThreadPool::getCanWork()
+SDL_bool ThreadPool::getCanWork()
 {
 	return m_canWork;
 }
