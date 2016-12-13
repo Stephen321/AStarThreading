@@ -8,13 +8,13 @@ TileMap::TileMap()
 
 void TileMap::reset(Size size)
 {
+	//*clean up any tiles from previous levels first before changing size/length*
+	cleanUpTiles();
+
 	//set up level data
 	m_size = size;
 	const LevelData levelData = WorldConstants::levels[m_size];
 	m_length = levelData.getLength();
-
-	//clean up any tiles from previous levels
-	cleanUpTiles();
 
 	//create new tiles
 	m_tiles = new Tile*[m_length * m_length];
@@ -128,7 +128,7 @@ void TileMap::cleanUpTiles()
 	{
 		for (int i = 0; i < m_length * m_length; i++)
 		{
-			delete m_tiles[i];
+			delete m_tiles[i]; // TODO: check if no threads using tiles??
 		}
 		delete m_tiles;
 	}
@@ -173,109 +173,22 @@ int TileMap::getLength() const
 	return m_length;
 }
 
-int TileMap::calculateHeuristic(const Tile * current, const Tile * goal)
+Tile* TileMap::getTile(int index) const
 {
-	Vector2f v = goal->getPos();
-	v.x -= current->getPos().x;
-	v.y -= current->getPos().y;
-	return v.magnitude();
+	return m_tiles[index];
 }
 
-std::vector<Vector2i> TileMap::getPath(const Vector2i& start, const Vector2i& end)
+Tile* TileMap::getTile(int x, int y) const
 {
-	//reset all
-	for (int i = 0; i < m_length * m_length; i++)
-	{
-		int x1 = Helper::posToCoords(m_tiles[i]->getPos()).x;
-		int y1 = Helper::posToCoords(m_tiles[i]->getPos()).y;
-		m_tiles[i]->resetColour();
-	}
-
-	int startIndex = start.x + (start.y * m_length);
-	int endIndex = end.x + (end.y * m_length);
-
-
-	std::map<int, TileData> map;
-
-	map[startIndex].g = 0;
-	map[startIndex].f = calculateHeuristic(m_tiles[startIndex], m_tiles[endIndex]);
-
-	std::vector<Vector2i> path;
-
-	if (m_tiles[startIndex]->getType() == Tile::Type::Wall || m_tiles[endIndex]->getType() == Tile::Type::Wall)
-		return path;
-
-	std::priority_queue<std::pair<int, int>, std::vector<std::pair<int,int>>, TileCostComparer> pq;
-
-	pq.push(std::pair<int, int>(startIndex, map[startIndex].f));
-
-	int neighbourOffets[8] = { -1, 0, 1, 0, 0, -1, 0, 1 };
-
-	//TODO: pointer to TileData which is in the map could be stored in pq instead?
-
-	while (pq.empty() == false)
-	{
-		int currentIndex = pq.top().first;
-		Tile* current = m_tiles[currentIndex];
-		Vector2i currentCoords = Helper::posToCoords(current->getPos());
-		if (current == m_tiles[endIndex])
-		{
-			for (TileData td = map[currentIndex]; current != m_tiles[startIndex]; current = td.previous)
-			{
-				current->setColour(Colour(0, 255, 0, 255));
-				//TODO: better way to do the path creation
-				currentCoords = Helper::posToCoords(current->getPos());
-				int index = currentCoords.x + (currentCoords.y * m_length);
-				td = map[index];
-				path.push_back(currentCoords);
-			}
-			return  path;
-		}
-		pq.pop();
-		map[currentIndex].closed = true;
-
-		for (int i = 0; i < 8; i += 2) //for each neighbour of current
-		{
-			int x = (currentCoords.x + neighbourOffets[i] >= 0 && currentCoords.x + neighbourOffets[i] < m_length) ? currentCoords.x + neighbourOffets[i] : -1;
-			int y = (currentCoords.y + neighbourOffets[i + 1] >= 0 && currentCoords.y + neighbourOffets[i + 1] < m_length) ? currentCoords.y + neighbourOffets[i + 1] : -1;
-			int neighbourIndex = x + (y * m_length);
-			Tile* neighbour = (x == -1 || y  == -1) ? 0 : m_tiles[neighbourIndex];
-			TileData& neighbourData = map[neighbourIndex];
-
-			if (neighbour == 0 || neighbourData.closed || neighbour == neighbourData.previous || neighbour->getType() == Tile::Type::Wall)
-			{
-				if (neighbour == 0) //invalid tiles
-				{
-					map.erase(neighbourIndex);
-				}
-				continue; //continue to next neighbour
-			}
-
-			int tenative_gScore = map[currentIndex].g + 10; //10 is cost between current and neighbour which always the same as no diagonals unless neighbour was a wall 
-			if (neighbourIndex == 868)
-			{
-				int test = 0;
-			}
-			if (tenative_gScore <= neighbourData.g)
-			{
-				//better path
-				neighbourData.previous = current;
-				neighbourData.g = tenative_gScore;
-				neighbourData.f = neighbourData.g + calculateHeuristic(neighbour, m_tiles[endIndex]);
-			}
-			if (neighbourData.open == false)
-			{
-				neighbourData.open = true;
-				neighbour->setColour(Colour(175, 238, 238, 255));
-				pq.push(std::pair<int, int>(neighbourIndex, neighbourData.f)); //we havnt fully evaluated this tile yet so push it
-			}
-		}
-	}
-
-	return  path;
+	return m_tiles[x + (y * m_length)];
 }
 
-Tile::Type TileMap::getTypeAt(const Vector2i & coords)
+Tile* TileMap::getTile(const Vector2i& coords) const
 {
-	return m_tiles[coords.x + (coords.y * m_size)]->getType();
+	return m_tiles[coords.x + (coords.y * m_length)];
+}
+
+Tile::Type TileMap::getTypeAt(const Vector2i& coords) const
+{
+	return m_tiles[coords.x + (coords.y * m_length)]->getType();
 }

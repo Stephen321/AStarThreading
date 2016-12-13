@@ -5,6 +5,9 @@
 
 namespace WorldConstants
 {
+	//threads
+	extern const int WORKER_COUNT;
+
 	//colours as hex values
 	extern const int NORMAL_COLOUR_ONE;
 	extern const int NORMAL_COLOUR_TWO;

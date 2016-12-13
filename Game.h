@@ -2,9 +2,11 @@
 #define GAME_H
 #include <vector>
 #include "LTimer.h"
-#include "Renderer.h""
+#include "Renderer.h"
 #include "Character.h"
 #include "TileMap.h"
+#include "AStar.h"
+#include "ThreadPool.h"
 
 
 class Game
@@ -21,9 +23,11 @@ public:
 	bool isRunning();
 	void cleanUp();
 private:
+	void reset(TileMap::Size size);
 	void resetChars();
-	void setNewPlayerTarget();
+	Vector2i getNewPlayerTarget();
 
+	TileMap::Size m_currentSize;
 	Renderer m_renderer;
 	bool m_running;
 
@@ -31,6 +35,10 @@ private:
 	Uint32 m_lastTicks; //the last recorded time.
 	Uint32 m_framesPerSecond; //the current FPS.
 	Uint32 m_framesCount; //frames passed since the last recorded fps.
+	
+	Uint64 m_nowPerfromCounter;
+	Uint64 m_lastPerformCounter;
+	double m_deltaTime;
 
 	LTimer m_capTimer;
 

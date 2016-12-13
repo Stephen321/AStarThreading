@@ -8,7 +8,12 @@ Game::Game()
 	, m_framesCount(0)
 	, m_framesPerSecond(0)
 	, m_lastTicks(SDL_GetTicks())
+	, m_nowPerfromCounter(SDL_GetPerformanceCounter())
+	, m_lastPerformCounter(0)
+	, m_deltaTime(0)
 {
+
+	ThreadPool::getInstance(); //initializing
 }
 
 Game::~Game()
@@ -36,11 +41,16 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	
 
 	//initialize game
-	m_tileMap.reset(TileMap::SMALL);
-	resetChars();
-	setNewPlayerTarget();
-	//m_tileMap.getPath(Helper::posToCoords(m_npcs[29].getPos()), Helper::posToCoords(m_player.getPos()));
+	m_currentSize = TileMap::SMALL;
+	reset(m_currentSize);
+	//AStar::setCharacterPath(m_tileMap, &m_player, Helper::posToCoords(m_player.getPos()), getNewPlayerTarget());
 	return true;
+}
+
+void Game::reset(TileMap::Size size)
+{
+	m_tileMap.reset(size);
+	resetChars();
 }
 
 void Game::resetChars()
@@ -73,6 +83,12 @@ void Game::resetChars()
 			indent = !indent;
 		}
 		m_npcs.push_back(Character(pos));
+	}
+
+
+	for (Character& c : m_npcs)
+	{
+		ThreadPool::getInstance().addJob(std::bind(&AStar::setCharacterPath, m_tileMap, &c, Helper::posToCoords(c.getPos()), Helper::posToCoords(m_player.getPos())));
 	}
 }
 
@@ -128,7 +144,43 @@ void Game::update()
 
 	if (m_player.remainingPathPoints() == 0)
 	{
-		setNewPlayerTarget();
+		//TODO: put this back in and have player update to follow
+		//AStar::setCharacterPath(m_tileMap, &m_player, Helper::posToCoords(m_player.getPos()), getNewPlayerTarget());
+	}
+
+
+	m_lastPerformCounter = m_nowPerfromCounter;
+	m_nowPerfromCounter = SDL_GetPerformanceCounter();
+	m_deltaTime = (double)((m_nowPerfromCounter - m_lastPerformCounter) * 1000 / SDL_GetPerformanceFrequency());
+
+	for (Character& npc : m_npcs)
+	{
+		npc.update(m_deltaTime);
+	}
+	m_player.update(m_deltaTime);
+
+
+	//TODO: better check
+	bool levelOver = true;
+	for (Character& c : m_npcs)
+	{
+		if (Helper::posToCoords(c.getPos()) != Helper::posToCoords(m_player.getPos()))
+		{
+			levelOver = false;
+			break;
+		}
+	}
+	if (levelOver)
+	{
+		if (m_currentSize + 1 < WorldConstants::LEVEL_COUNT)
+		{
+			m_currentSize = (TileMap::Size)(m_currentSize + 1);
+		}
+		else
+		{
+			m_currentSize = (TileMap::Size)0;
+		}
+		reset(m_currentSize);
 	}
 
 	int frameTicks = m_capTimer.getTicks();//time since start of frame
@@ -139,7 +191,7 @@ void Game::update()
 	}
 }
 
-void Game::setNewPlayerTarget()
+Vector2i Game::getNewPlayerTarget()
 {
 	//get random target for player within how ever many moves the player makes before we next update its path (TICKS_PER_PLAYER_UPDATE / 1000)
 	Vector2i currentCoords = Helper::posToCoords(m_player.getPos());
@@ -154,7 +206,8 @@ void Game::setNewPlayerTarget()
 		target.x = Helper::clamp(target.x, 0, m_tileMap.getLength());
 		target.y = Helper::clamp(target.y, 0, m_tileMap.getLength());
 	}
-	m_player.setTilePath(m_tileMap.getPath(currentCoords, target));
+
+	return target;
 }
 
 void Game::handleEvents()

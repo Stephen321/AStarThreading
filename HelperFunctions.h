@@ -33,5 +33,12 @@ namespace Helper
 			value = max - 1;
 		return value;
 	}
+
+	inline Vector2f lerp(float t, Vector2f a, Vector2f b) 
+	{
+		if (t > 1.f)
+			t = 1.f;
+		return a*(1 - t) + b*t;
+	}
 }
 #endif 

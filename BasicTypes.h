@@ -24,9 +24,12 @@ typedef struct BoundingBox {
 	int x, y, w, h;
 } BoundingBox;
 
+//TODO: use template for these
 typedef struct Vector2f {
 	Vector2f(float _x, float _y) : x(_x), y(_y) {}
 	Vector2f() : x(0.f), y(0.f) {}
+	Vector2f operator*(float m) { x *= m; y *= m; return *this; }
+	Vector2f operator+(const Vector2f v) { x += v.x; y += v.y; return *this; }
 	float magnitude() { return sqrt(x * x + y * y); }
 	float x;
 	float y;
@@ -35,6 +38,8 @@ typedef struct Vector2f {
 typedef struct Vector2i {
 	Vector2i(int _x, int _y) : x(_x), y(_y) {}
 	Vector2i() : x(0), y(0) {}
+	bool operator==(const Vector2i v) { return (x == v.x && y == v.y); }
+	bool operator!=(const Vector2i v) { return (x != v.x || y != v.y); }
 	int x;
 	int y;
 } Vector2i;
