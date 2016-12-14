@@ -15,6 +15,7 @@ ThreadPool::ThreadPool()
 		m_workers.push_back(new Worker(i));
 		m_workers[i]->start();
 	}
+	int debug = 0;
 }
 
 ThreadPool::~ThreadPool()
@@ -23,7 +24,6 @@ ThreadPool::~ThreadPool()
 
 void ThreadPool::incrementThreadsRunning()
 {
-	std::cout << "incrementing" << std::endl;
 	SDL_LockMutex(m_threadsRunningLock);
 	m_threadsRunning++;
 	SDL_UnlockMutex(m_threadsRunningLock);
@@ -31,7 +31,6 @@ void ThreadPool::incrementThreadsRunning()
 
 void ThreadPool::decrementThreadsRunning()
 {
-	std::cout << "decrementing" << std::endl;
 	SDL_LockMutex(m_threadsRunningLock);
 	m_threadsRunning--;
 	SDL_UnlockMutex(m_threadsRunningLock);
@@ -39,7 +38,6 @@ void ThreadPool::decrementThreadsRunning()
 
 int ThreadPool::getThreadsRunning()
 {
-	std::cout << "accessing" << std::endl;
 	int threadsRunning;
 	SDL_LockMutex(m_threadsRunningLock);
 	threadsRunning = m_threadsRunning;

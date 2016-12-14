@@ -40,8 +40,6 @@ private:
 	Uint64 m_lastPerformCounter;
 	double m_deltaTime;
 
-	LTimer m_capTimer;
-
 	Uint32 m_charUpdateTicks;
 
 

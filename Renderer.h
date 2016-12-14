@@ -5,6 +5,7 @@
 #include "WorldConstants.h"
 #include "Drawable.h"
 #include <SDL.h>
+#include "HelperFunctions.h"
 
 class Renderer 
 {
@@ -16,9 +17,11 @@ public:
 	bool initialize(const char* title, int width, int height, int flags);
 	void clear();
 	void render(const Drawable* d) const;
-	void drawRect(SDL_Rect r, const Colour& fillColour, const Colour& outlineColour = Colour()) const;
+	void drawRect(SDL_Rect r, const Colour& fillColour) const;
 	void present();
 	void moveCamera(int xDir, int yDir);
+	void updateCamera(float dt);
+	void setPos(const Vector2f& v);
 	void zoom(int dir);
 	BoundingBox getCameraBounds() const;
 

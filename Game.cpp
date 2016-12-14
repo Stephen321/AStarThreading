@@ -83,14 +83,9 @@ void Game::resetChars()
 			}
 			indent = !indent;
 		}
-		m_npcs.push_back(Character(pos));
+		m_npcs.push_back(Character(pos, GameObject::Type::NPC, &m_player));
 	}
 
-
-	for (Character& c : m_npcs)
-	{
-		ThreadPool::getInstance().addJob(std::bind(&AStar::setCharacterPath, &c, Helper::posToCoords(c.getPos()), Helper::posToCoords(m_player.getPos())));
-	}
 }
 
 void Game::loadContent()
@@ -119,7 +114,6 @@ int targetY = 0;
 
 void Game::update()
 {
-	m_capTimer.start();
 	m_framesCount++;
 	if (LTimer::gameTime() > m_lastTicks + 1000) //every second
 	{
@@ -145,15 +139,15 @@ void Game::update()
 
 	if (m_player.remainingPathPoints() == 0)
 	{
-		//TODO: put this back in and have player update to follow
-		//AStar::setCharacterPath(m_tileMap, &m_player, Helper::posToCoords(m_player.getPos()), getNewPlayerTarget());
+		AStar::FindPath(&m_player, getNewPlayerTarget());
 	}
 
 
 	m_lastPerformCounter = m_nowPerfromCounter;
 	m_nowPerfromCounter = SDL_GetPerformanceCounter();
 	m_deltaTime = (double)((m_nowPerfromCounter - m_lastPerformCounter) * 1000 / SDL_GetPerformanceFrequency());
-
+	if (m_deltaTime == 0)
+		m_deltaTime = 1;
 	for (Character& npc : m_npcs)
 	{
 		npc.update(m_deltaTime);
@@ -182,13 +176,6 @@ void Game::update()
 			m_currentSize = (TileMap::Size)0;
 		}
 		reset(m_currentSize);
-	}
-
-	int frameTicks = m_capTimer.getTicks();//time since start of frame
-	if (frameTicks < WorldConstants::TICKS_PER_FRAMES)
-	{
-		//Wait remaining time before going to next frame
-		SDL_Delay(WorldConstants::TICKS_PER_FRAMES - frameTicks);
 	}
 }
 

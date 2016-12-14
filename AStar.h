@@ -1,6 +1,7 @@
 #ifndef ASTAR_H
 #define ASTAR_H
 #include "TileMap.h"
+#include "ThreadPool.h"
 
 class Character;
 //A Star
@@ -16,7 +17,8 @@ public:
 		}
 	};
 	static void setTileMap(TileMap* _tileMap);
-	static void setCharacterPath(Character* character, const Vector2i& start, const Vector2i& end);
+	static void FindPath(Character* character, const Vector2i& end);
+	static std::function<void()> getJobFunction(Character* character, const Vector2i& end);
 
 private:
 	static TileMap* tileMap;

@@ -15,10 +15,20 @@ void AStar::setTileMap(TileMap* _tileMap)
 	tileMap = _tileMap;
 }
 
-void AStar::setCharacterPath(Character* character, const Vector2i& start, const Vector2i& end)
+std::function<void()> AStar::getJobFunction(Character* character, const Vector2i& end)
 {
+	return std::bind(&AStar::FindPath, character, end);
+}
+
+void AStar::FindPath(Character* character, const Vector2i& end)
+{
+	int totalTiles = tileMap->getLength() * tileMap->getLength();
+	Vector2i start = Helper::posToCoords(character->getPos());
 	int startIndex = start.x + (start.y * tileMap->getLength());
 	int endIndex = end.x + (end.y * tileMap->getLength());
+	if (startIndex >= totalTiles || startIndex < 0 ||
+		endIndex >= totalTiles || endIndex < 0)
+		return;
 
 	std::map<int, Tile::Data> map;
 
@@ -43,6 +53,8 @@ void AStar::setCharacterPath(Character* character, const Vector2i& start, const 
 	{
 		while (pq.empty() == false)
 		{
+			if (ThreadPool::getInstance().getCanWork() == false) //this a star takes a while on the large map so we need to exit early if we finished working
+				return;
 			int currentIndex = pq.top().first;
 			pq.pop();
 			map[currentIndex].closed = true;

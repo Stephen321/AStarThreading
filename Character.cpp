@@ -1,13 +1,11 @@
 #include "Character.h"
 
-Character::Character(const Vector2f& pos, Type type)
+Character::Character(const Vector2f& pos, Type type, Character* target)
 	: GameObject(type, pos)
+	, m_target(target)
 	, m_elapsedTime(0)
+	, m_waitingForPath(false)
 {
-	m_rect.x += Border * 0.5f;
-	m_rect.y += Border * 0.5f;
-	m_rect.w -= Border;
-	m_rect.h -= Border;
 	m_startPos = pos;
 	m_targetPos = pos;
 }
@@ -24,6 +22,7 @@ Character & Character::operator=(const Character & rhs)
 	m_type = rhs.getType();
 	m_startPos = rhs.getPos();
 	m_targetPos = rhs.getPos();
+	m_target = rhs.getTarget();
 	return *this;
 }
 
@@ -37,6 +36,18 @@ void Character::move()
 		m_tilePath.pop_back();
 		m_elapsedTime = 0;
 	}
+	else if (m_waitingForPath == false && m_target != 0 && m_lastTargetPos != Helper::posToCoords(m_target->getPos()))
+	{
+		m_lastTargetPos = Helper::posToCoords(m_target->getPos());
+		m_waitingForPath = true;
+		std::cout << "adding job" << std::endl;
+		ThreadPool::getInstance().addJob(AStar::getJobFunction(this, Helper::posToCoords(m_target->getPos())));
+	}
+}
+
+Character * Character::getTarget() const
+{
+	return m_target;
 }
 
 void Character::update(int dt)
@@ -47,8 +58,8 @@ void Character::update(int dt)
 
 void Character::setPos(const Vector2f& v)
 {
-	m_rect.x = v.x + (Border * 0.5f);
-	m_rect.y = v.y + (Border * 0.5f);
+	m_rect.x = v.x;
+	m_rect.y = v.y;
 }
 
 void Character::setPos(const Vector2i& v)
@@ -59,9 +70,9 @@ void Character::setPos(const Vector2i& v)
 
 void Character::setTilePath(std::vector<Tile*> tilePath)
 {
+	m_waitingForPath = false;
+	m_elapsedTime = 0.f;
 	m_tilePath = tilePath;
-	m_startPos = m_tilePath.back()->getPos();
-	m_targetPos = m_tilePath.back()->getPos();
 }
 
 int Character::remainingPathPoints() const

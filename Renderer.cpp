@@ -28,6 +28,7 @@ bool Renderer::initialize(const char* title, int width, int height, int flags)
 			m_cameraBounds.h = m_cameraSize.y / WorldConstants::TILE_SIZE;
 			m_camera = { m_cameraBounds.x, m_cameraBounds.y, width, height }; //half the size of the window
 			SDL_SetRenderDrawColor(m_renderer, 255, 255, 255, 255);
+
 			return true;
 		}
 		else
@@ -56,7 +57,7 @@ void Renderer::clear()
 
 void Renderer::present()
 {
-	setDrawColour(128, 64, 128, 255);
+	setDrawColour(40, 0, 52, 255);
 	SDL_RenderPresent(m_renderer);
 }
 
@@ -75,13 +76,13 @@ void Renderer::render(const Drawable* d) const
 	d->render(*this);
 }
 
-void Renderer::drawRect(SDL_Rect r, const Colour& fillColour, const Colour& outlineColour) const
+void Renderer::drawRect(SDL_Rect r, const Colour& fillColour) const
 {
 	r = applyCameraTransformation(r);
 	SDL_SetRenderDrawBlendMode(m_renderer, SDL_BLENDMODE_BLEND);
 	setDrawColour(fillColour);
 	SDL_RenderFillRect(m_renderer, &r);
-	setDrawColour(outlineColour);
+	setDrawColour(0,0,0,255);
 	SDL_RenderDrawRect(m_renderer, &r);
 }
 
@@ -94,10 +95,10 @@ SDL_Rect Renderer::applyCameraTransformation(const SDL_Rect& r) const
 	transformed.x -= m_camera.x;
 	transformed.x *= xScale;
 	transformed.y -= m_camera.y;
+
 	transformed.y *= yScale;
 	transformed.w *= xScale;
 	transformed.h *= yScale;
-
 	return transformed;
 }
 
