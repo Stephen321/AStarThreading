@@ -66,23 +66,33 @@ public:
 	}
 	std::queue<std::function<void()>>& getJobsQueue();
 	SDL_mutex* getJobsLock();
-	SDL_sem* getJobsAvailable();
-	SDL_bool getCanWork();
-	void addJob(std::function<void()> job);
-	void restart();
-	void incrementThreadsRunning();
-	void decrementThreadsRunning();
+	void addJob(std::function<void()> job); //using mutex 
+	void start();
+	void stop();
+	void cleanUp(); 
+	int getThreadsRunning(); //using mutex
+	void incrementThreadsRunning(); //using mutex
+	void decrementThreadsRunning(); //using mutex
+	bool getCanWork();				//using mutex
+	void setCanWork(bool value);	//using mutex
+
 	ThreadPool(ThreadPool const&) = delete;
 	void operator=(ThreadPool const&) = delete;
 private:
 	ThreadPool();
 	~ThreadPool();
-	SDL_sem * m_jobsAvailable;
+
 	SDL_mutex* m_jobsLock;
 	SDL_mutex* m_threadsRunningLock;
-	SDL_sem* m_canWorkSem;
-	SDL_bool m_canWork;
+	bool m_canWork;
 	int m_threadsRunning;
+	int m_readers;
+
+	int readcount = 0; //(initial value = 0)
+	SDL_mutex* m_readerCountLock;
+	SDL_mutex* m_attemptReadLock;
+	SDL_mutex* m_canWorkLock;
+
 	std::vector<Worker*> m_workers;
 	std::queue<std::function<void()>> m_jobs; //queue of function pointers left to do
 };
@@ -93,14 +103,10 @@ public:
 	Worker(int workerId)
 		: m_workerId(workerId)
 	{
-		m_thread = SDL_CreateThread(Worker::worker, "t" + m_workerId, (void*)NULL);
 	}
 	~Worker()
 	{
-		int status = 0;
-		//how to destroy threads what loop forever
-		//SDL_WaitThread(m_thread, &status);
-		std::cout << "Thread destructed with status: " << status << std::endl;
+		wait();
 	}
 
 	SDL_Thread* getThread() const
@@ -117,21 +123,21 @@ public:
 	{
 		int status;
 		SDL_WaitThread(m_thread, &status);
+		std::cout << "Thread " << SDL_GetThreadID(m_thread) << " waited with status: " << status << std::endl;
 		m_thread = NULL;
-		std::cout << "Thread " << SDL_ThreadID() << " waited with status: " << status << std::endl;
 	}
 
 	static int worker(void* ptr)
 	{
 		std::queue<std::function<void()>>& jobs = ThreadPool::getInstance().getJobsQueue();
-		SDL_sem* jobsAvailable = ThreadPool::getInstance().getJobsAvailable();
-		SDL_mutex* jobsLock = ThreadPool::getInstance().getJobsLock();
-		//bool& canWork = ThreadPool::getInstance().getCanWork();
-		ThreadPool::getInstance().incrementThreadsRunning();
-		while (true)//ThreadPool::getInstance().getCanWork())
-		{
-			SDL_SemWait(jobsAvailable); //wait until there is a job available
+		ThreadPool& threadPool = ThreadPool::getInstance();
+		SDL_mutex* jobsLock = threadPool.getJobsLock();
+		threadPool.incrementThreadsRunning();
 
+		while (threadPool.getCanWork())
+		{
+			//spin while waiting for for jobs to become availble and we can still work
+			while (jobs.size() == 0 && threadPool.getCanWork()) {}; 
 
 			SDL_LockMutex(jobsLock); //only one thread can read the thread at a time
 			
@@ -148,11 +154,8 @@ public:
 				job();
 				std::cout << "T " << SDL_ThreadID() << "J"  << std::endl;
 			}
-
-			//std::cout << "hi from " << SDL_ThreadID() << std::endl;
 		}
 		ThreadPool::getInstance().decrementThreadsRunning();
-
 		return 0;
 	}
 private:

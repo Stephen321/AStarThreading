@@ -48,9 +48,10 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 
 void Game::reset(TileMap::Size size)
 {
-	ThreadPool::getInstance().restart();
+	ThreadPool::getInstance().stop(); //stop running threads and clear job queue
 	m_tileMap.reset(size);
 	resetChars();
+	ThreadPool::getInstance().start(); //start threads again now that the tile map and characters has been changed
 }
 
 void Game::resetChars()
@@ -269,6 +270,7 @@ void Game::cleanUp()
 	DEBUG_MSG("Cleaning Up");
 	m_renderer.cleanUp();
 	m_npcs.clear();
+	ThreadPool::getInstance().cleanUp();
 	m_tileMap.cleanUpTiles();
 	SDL_Quit();
 }
