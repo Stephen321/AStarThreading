@@ -62,7 +62,10 @@ void Game::resetChars()
 	//player positioned randomly between (0, charSpawnWidth) -> (0, levelHeight - charSpawnWidth)
 	Vector2f playerPosition = Helper::coordsToPos(Vector2i(rand() % charSpawnWidth, charSpawnWidth + (rand() % (int)(m_tileMap.getLength() - charSpawnWidth - 1))));
 	if (m_player != 0)
+	{
 		delete m_player;
+		m_player = 0;
+	}
 	m_player = new Character(playerPosition, Character::Type::Player);
 	m_player->clearTilePath();
 
@@ -163,6 +166,7 @@ void Game::update()
 		{
 			AStar::removePoints((*it));
 			delete (*it);
+			(*it) = 0;
 			it = m_npcs.erase(it);
 		}
 		else
@@ -286,7 +290,10 @@ void Game::cleanUp()
 	DEBUG_MSG("Cleaning Up");
 	m_renderer.cleanUp();
 	if (m_player != 0)
+	{
 		delete m_player;
+		m_player = 0;
+	}
 	cleanUpNpcs();
 	if (USE_THREADS)
 		ThreadPool::getInstance().cleanUp();
@@ -299,6 +306,7 @@ void Game::cleanUpNpcs()
 	for (int i = 0; i < m_npcs.size(); i++)
 	{
 		delete m_npcs[i];
+		m_npcs[i] = 0;
 	}
 	m_npcs.clear();
 }
