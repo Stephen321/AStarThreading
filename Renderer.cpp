@@ -15,13 +15,9 @@ bool Renderer::initialize(const char* title, int width, int height, int flags)
 	{
 		m_windowWidth = width;
 		m_windowHeight = height;
-		//DEBUG_MSG("Window creation success"); //TODO: why doesnt this work
 		m_renderer = SDL_CreateRenderer(m_window, -1, 0);
 		if (m_renderer != 0)
 		{
-			//DEBUG_MSG("Renderer creation success");
-			/*width *= 2.5f;
-			height *= 2.5f;*/
 			m_cameraSize.x = width;
 			m_cameraSize.y = height;
 			m_cameraBounds.w = m_cameraSize.x / WorldConstants::TILE_SIZE;
@@ -33,13 +29,11 @@ bool Renderer::initialize(const char* title, int width, int height, int flags)
 		}
 		else
 		{
-			//DEBUG_MSG("Renderer init fail");
 			return false;
 		}
 	}
 	else
 	{
-		//DEBUG_MSG("Window init fail");
 		return false;
 	}
 }
@@ -64,6 +58,11 @@ void Renderer::present()
 void Renderer::setDrawColour(int r, int g, int b, int a) const
 {
 	SDL_SetRenderDrawColor(m_renderer, r, g, b, a);
+}
+
+SDL_Renderer* Renderer::getRenderer()
+{
+	return m_renderer;
 }
 
 void Renderer::setDrawColour(const Colour& c) const
@@ -102,6 +101,19 @@ SDL_Rect Renderer::applyCameraTransformation(const SDL_Rect& r) const
 	return transformed;
 }
 
+SDL_Point Renderer::applyCameraTransformationPoint(SDL_Point& p)
+{
+	float xScale = m_windowWidth / m_camera.w;
+	float yScale = m_windowHeight / m_camera.h;
+
+	SDL_Point transformed = p;
+	transformed.x -= m_camera.x;
+	transformed.x *= xScale;
+	transformed.y -= m_camera.y;
+	transformed.y *= yScale;
+	return transformed;
+}
+
 
 void Renderer::moveCamera(int xDir, int yDir)
 {
@@ -127,5 +139,18 @@ void Renderer::zoom(int dir)
 BoundingBox Renderer::getCameraBounds() const
 {
 	return m_cameraBounds;
+}
+
+void Renderer::resetCamera()
+{
+	m_currentZoom = 1;
+	m_camera.x = 0;
+	m_camera.y = 0;
+	m_camera.w = m_cameraSize.x;
+	m_camera.h = m_cameraSize.y;
+	m_cameraBounds.x = 0;
+	m_cameraBounds.y = 0;
+	m_cameraBounds.w = m_camera.w / WorldConstants::TILE_SIZE;
+	m_cameraBounds.h = m_camera.h / WorldConstants::TILE_SIZE;
 }
 

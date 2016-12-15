@@ -13,9 +13,7 @@ ThreadPool::ThreadPool()
 	for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
 	{
 		m_workers.push_back(new Worker(i));
-		m_workers[i]->start();
 	}
-	int debug = 0;
 }
 
 ThreadPool::~ThreadPool()
@@ -57,7 +55,7 @@ void ThreadPool::addJob(std::function<void()> job)
 void ThreadPool::start()
 {
 	setCanWork(true);
-	for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
+	for (int i = 0; i < m_workers.size(); i++)
 	{
 		m_workers[i]->start();
 	}
@@ -65,12 +63,11 @@ void ThreadPool::start()
 
 void ThreadPool::stop()
 {
-	std::cout << "ThreadPool stopping" << std::endl;
 	SDL_LockMutex(m_jobsLock);
 	std::queue<std::function<void()>>().swap(m_jobs); // clear queue
 	SDL_UnlockMutex(m_jobsLock);
 	setCanWork(false);
-	for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
+	for (int i = 0; i < m_workers.size(); i++)
 	{
 		m_workers[i]->wait();
 	}
@@ -79,13 +76,11 @@ void ThreadPool::stop()
 
 void ThreadPool::cleanUp()
 {
-	std::cout << "ThreadPool clean up " << std::endl;
-	//TODO: why is 1 job for each thread still done after this
 	SDL_LockMutex(m_jobsLock); 
 	std::queue<std::function<void()>>().swap(m_jobs); // clear queue
 	SDL_UnlockMutex(m_jobsLock);
 	setCanWork(false);
-	for (int i = 0; i < WorldConstants::WORKER_COUNT; i++)
+	for (int i = 0; i < m_workers.size(); i++)
 	{
 		delete m_workers[i];
 	}
@@ -114,16 +109,16 @@ bool ThreadPool::getCanWork()
 	//reader- writer with preference for writer
 	SDL_LockMutex(m_attemptReadLock);
 	SDL_LockMutex(m_readerCountLock);
-	readcount++;
-	if (readcount == 1)
+	m_readers++;
+	if (m_readers == 1)
 		SDL_LockMutex(m_canWorkLock);
 	SDL_UnlockMutex(m_readerCountLock);
 	SDL_UnlockMutex(m_attemptReadLock);
 	b = m_canWork;
 		
 	SDL_LockMutex(m_readerCountLock);
-	readcount--;
-	if (readcount == 0)
+	m_readers--;
+	if (m_readers == 0)
 		SDL_UnlockMutex(m_canWorkLock);
 	SDL_UnlockMutex(m_readerCountLock);
 

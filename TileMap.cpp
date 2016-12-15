@@ -111,13 +111,6 @@ bool TileMap::checkIfWall(const Wall& wall, const Vector2i& current)
 			isWall = true;
 		}
 	}
-	//else if (wall.start.y == current.y) //horizontal walls
-	//{
-	//	if (current.x >= wall.start.x && current.x <= wall.end.x)
-	//	{
-	//		isWall = true;
-	//	}
-	//}
 
 	return isWall;
 }
@@ -128,7 +121,7 @@ void TileMap::cleanUpTiles()
 	{
 		for (int i = 0; i < m_length * m_length; i++)
 		{
-			delete m_tiles[i]; // TODO: check if no threads using tiles??
+			delete m_tiles[i];
 		}
 		delete m_tiles;
 	}
@@ -150,8 +143,6 @@ void TileMap::render(const Renderer& r) const
 
 	visibleBounds.w = std::fminf(m_length - visibleBounds.x, visibleBounds.w);
 	visibleBounds.h= std::fminf(m_length - visibleBounds.y, visibleBounds.h);
-
-	//std::cout << "X: " << visibleBounds.x << " Y: " << visibleBounds.y << " W: " << (visibleBounds.x + visibleBounds.w) << " H: " << (visibleBounds.y + visibleBounds.h) << std::endl;
 
 	for (int y = visibleBounds.y; y < visibleBounds.y + visibleBounds.h; y++)
 	{

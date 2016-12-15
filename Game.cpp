@@ -1,6 +1,5 @@
-#include <Game.h>
+#include "Game.h"
 #include <iostream>
-#include <thread>
 
 
 Game::Game() 
@@ -8,9 +7,6 @@ Game::Game()
 	, m_framesCount(0)
 	, m_framesPerSecond(0)
 	, m_lastTicks(SDL_GetTicks())
-	, m_nowPerfromCounter(SDL_GetPerformanceCounter())
-	, m_lastPerformCounter(0)
-	, m_deltaTime(0)
 {
 	AStar::setTileMap(&m_tileMap); //make sure AStar has a pointer to tileMap
 }
@@ -42,16 +38,19 @@ bool Game::initialize(const char* title, int width, int height, int flags)
 	//initialize game
 	m_currentSize = TileMap::SMALL;
 	reset(m_currentSize);
-	//AStar::setCharacterPath(m_tileMap, &m_player, Helper::posToCoords(m_player.getPos()), getNewPlayerTarget());
 	return true;
 }
 
 void Game::reset(TileMap::Size size)
 {
-	ThreadPool::getInstance().stop(); //stop running threads and clear job queue
+	AStar::reset();
+	if (USE_THREADS)
+		ThreadPool::getInstance().stop(); //stop running threads and clear job queue
 	m_tileMap.reset(size);
+	if (USE_THREADS)
+		ThreadPool::getInstance().start(); //start threads again now that the tile map and characters has been changed
 	resetChars();
-	ThreadPool::getInstance().start(); //start threads again now that the tile map and characters has been changed
+	m_renderer.resetCamera();
 }
 
 void Game::resetChars()
@@ -62,10 +61,13 @@ void Game::resetChars()
 
 	//player positioned randomly between (0, charSpawnWidth) -> (0, levelHeight - charSpawnWidth)
 	Vector2f playerPosition = Helper::coordsToPos(Vector2i(rand() % charSpawnWidth, charSpawnWidth + (rand() % (int)(m_tileMap.getLength() - charSpawnWidth - 1))));
-	m_player = Character(playerPosition, Character::Type::Player);
+	if (m_player != 0)
+		delete m_player;
+	m_player = new Character(playerPosition, Character::Type::Player);
+	m_player->clearTilePath();
 
 	//position npcs
-	m_npcs.clear();
+	cleanUpNpcs();
 	int xOffset = m_tileMap.getLength() - charSpawnWidth;
 	int yOffset = rand() % charSpawnWidth;
 	bool indent = true;
@@ -83,7 +85,7 @@ void Game::resetChars()
 			}
 			indent = !indent;
 		}
-		m_npcs.push_back(Character(pos, GameObject::Type::NPC, &m_player));
+		m_npcs.push_back(new Character(pos, GameObject::Type::NPC, m_player));
 	}
 
 }
@@ -98,12 +100,15 @@ void Game::render()
 	m_renderer.clear();
 
 	m_renderer.render(&m_tileMap);
-	m_renderer.render(&m_player);
-	for (const Character& npc : m_npcs)
+	if (DISPLAY_LINES)
 	{
-		m_renderer.render(&npc);
+		AStar::render(m_renderer);
 	}
-
+	m_renderer.render(m_player);
+	for (const Character* npc : m_npcs)
+	{
+		m_renderer.render(npc);
+	}
 	m_renderer.present();
 }
 
@@ -122,50 +127,50 @@ void Game::update()
 
 		//calculate fps 
 		m_framesPerSecond = m_framesCount;
-		//std::cout << "FPS: " << m_framesPerSecond << std::endl;
+		if (DISPLAY_FPS)
+		{
+			std::cout << "FPS: " << m_framesPerSecond << std::endl;
+		}
 		m_framesCount = 0;
 	}
 
-	if (LTimer::gameTime() > m_charUpdateTicks + WorldConstants::TICKS_PER_CHAR_UPDATE) 
+	if (LTimer::gameTime() > m_playerUpdateTicks + WorldConstants::TICKS_PER_PLAYER_UPDATE)
+	{
+		//set last ticks to the current 
+		m_playerUpdateTicks = LTimer::gameTime();
+		m_player->move();
+	}
+
+	if (LTimer::gameTime() > m_npcUpdateTicks + WorldConstants::TICKS_PER_NPC_UPDATE)
 	{
 		//set last ticks to the current ticks
-		m_charUpdateTicks = LTimer::gameTime();
-		for (Character& npc : m_npcs)
+		m_npcUpdateTicks = LTimer::gameTime();
+		for (Character* npc : m_npcs)
 		{
-			npc.move();
-		}
-		m_player.move();
-	}
-
-	if (m_player.remainingPathPoints() == 0)
-	{
-		AStar::FindPath(&m_player, getNewPlayerTarget());
-	}
-
-
-	m_lastPerformCounter = m_nowPerfromCounter;
-	m_nowPerfromCounter = SDL_GetPerformanceCounter();
-	m_deltaTime = (double)((m_nowPerfromCounter - m_lastPerformCounter) * 1000 / SDL_GetPerformanceFrequency());
-	if (m_deltaTime == 0)
-		m_deltaTime = 1;
-	for (Character& npc : m_npcs)
-	{
-		npc.update(m_deltaTime);
-	}
-	m_player.update(m_deltaTime);
-
-
-	//TODO: better check
-	bool levelOver = true;
-	for (Character& c : m_npcs)
-	{
-		if (Helper::posToCoords(c.getPos()) != Helper::posToCoords(m_player.getPos()))
-		{
-			levelOver = false;
-			break;
+			npc->move();
 		}
 	}
-	if (levelOver)
+
+	if (m_player->remainingPathPoints() == 0)
+	{
+		AStar::removePoints(m_player);
+		AStar::FindPath(m_player, getNewPlayerTarget());
+	}
+
+	for (std::vector<Character*>::iterator it = m_npcs.begin(); it != m_npcs.end();)
+	{
+		if (Helper::posToCoords((*it)->getPos()) == Helper::posToCoords(m_player->getPos()))
+		{
+			AStar::removePoints((*it));
+			delete (*it);
+			it = m_npcs.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+	if (m_npcs.size() == 0)
 	{
 		if (m_currentSize + 1 < WorldConstants::LEVEL_COUNT)
 		{
@@ -182,7 +187,7 @@ void Game::update()
 Vector2i Game::getNewPlayerTarget()
 {
 	//get random target for player within how ever many moves the player makes before we next update its path (TICKS_PER_PLAYER_UPDATE / 1000)
-	Vector2i currentCoords = Helper::posToCoords(m_player.getPos());
+	Vector2i currentCoords = Helper::posToCoords(m_player->getPos());
 	Vector2i target(Helper::random(currentCoords.x - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.x + WorldConstants::MAX_P_TARGET_MOVES),
 					Helper::random(currentCoords.y - WorldConstants::MAX_P_TARGET_MOVES, currentCoords.y + WorldConstants::MAX_P_TARGET_MOVES));
 	target.x = Helper::clamp(target.x, 0, m_tileMap.getLength());
@@ -206,6 +211,30 @@ void Game::handleEvents()
 	{
 		switch (event.type)
 		{
+		case SDL_KEYUP:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_1:
+				m_currentSize = TileMap::SMALL;
+				reset(m_currentSize);
+				break;
+			case SDLK_2:
+				m_currentSize = TileMap::MEDIUM;
+				reset(m_currentSize);
+				break;
+			case SDLK_3:
+				m_currentSize = TileMap::LARGE;
+				reset(m_currentSize);
+				break; 
+			case SDLK_l:
+				DISPLAY_LINES = !DISPLAY_LINES;
+				break;
+			case SDLK_f:
+				DISPLAY_FPS = !DISPLAY_FPS;
+				break;
+			default:
+				break;
+			}
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
@@ -256,8 +285,20 @@ void Game::cleanUp()
 {
 	DEBUG_MSG("Cleaning Up");
 	m_renderer.cleanUp();
-	m_npcs.clear();
-	ThreadPool::getInstance().cleanUp();
+	if (m_player != 0)
+		delete m_player;
+	cleanUpNpcs();
+	if (USE_THREADS)
+		ThreadPool::getInstance().cleanUp();
 	m_tileMap.cleanUpTiles();
 	SDL_Quit();
+}
+
+void Game::cleanUpNpcs()
+{
+	for (int i = 0; i < m_npcs.size(); i++)
+	{
+		delete m_npcs[i];
+	}
+	m_npcs.clear();
 }

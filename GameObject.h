@@ -7,7 +7,6 @@ class GameObject : public Drawable
 {
 public:
 
-	//TODO: cut this down 
 	enum class Type : Uint8 {
 		Normal,
 		Wall,
@@ -17,8 +16,6 @@ public:
 	GameObject(Type type, const Vector2f& pos = Vector2f());
 	virtual void render(const Renderer& r) const override;
 	Vector2f getPos() const;
-	Colour getColour() const;
-	SDL_Rect getRect() const;
 	Type getType() const;
 	void setColour(const Colour& c);
 	void resetColour();

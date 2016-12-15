@@ -3,8 +3,14 @@
 
 #include "LevelData.h"
 
+extern const bool USE_THREADS;
+extern bool DISPLAY_LINES;
+extern bool DISPLAY_FPS;
 namespace WorldConstants
 {
+	//Astar
+	extern const int G_COST;
+
 	//threads
 	extern const int WORKER_COUNT;
 
@@ -26,10 +32,12 @@ namespace WorldConstants
 
 	//timing
 	extern const int TICKS_PER_FRAMES;
-	extern const int TICKS_PER_CHAR_UPDATE;
+	extern const int TICKS_PER_PLAYER_UPDATE;
+	extern const int TICKS_PER_NPC_UPDATE;
 
 	//tile
 	extern const int TILE_SIZE;
+	extern const int HALF_SIZE_PATH_SPLIT_MIN;
 
 	//level length
 	extern const int LEVEL_ONE_LENGTH;

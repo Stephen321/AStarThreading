@@ -2,7 +2,7 @@
 #define DRAWABLE_H
 
 
-class Renderer; //TODO: remove this
+class Renderer; 
 class Drawable
 {
 public:

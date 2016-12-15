@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 #include <vector>
+#include <ctime>
 #include "LTimer.h"
 #include "Renderer.h"
 #include "Character.h"
@@ -26,6 +27,7 @@ private:
 	void reset(TileMap::Size size);
 	void resetChars();
 	Vector2i getNewPlayerTarget();
+	void cleanUpNpcs();
 
 	TileMap::Size m_currentSize;
 	Renderer m_renderer;
@@ -35,16 +37,13 @@ private:
 	Uint32 m_lastTicks; //the last recorded time.
 	Uint32 m_framesPerSecond; //the current FPS.
 	Uint32 m_framesCount; //frames passed since the last recorded fps.
-	
-	Uint64 m_nowPerfromCounter;
-	Uint64 m_lastPerformCounter;
-	double m_deltaTime;
 
-	Uint32 m_charUpdateTicks;
+	Uint32 m_playerUpdateTicks;
+	Uint32 m_npcUpdateTicks;
 
 
-	Character m_player;
-	std::vector<Character> m_npcs;
+	Character* m_player;
+	std::vector<Character*> m_npcs;
 
 	bool flip = true;
 	bool flipY = true;

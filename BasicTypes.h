@@ -24,7 +24,6 @@ typedef struct BoundingBox {
 	int x, y, w, h;
 } BoundingBox;
 
-//TODO: use template for these
 typedef struct Vector2f {
 	Vector2f(float _x, float _y) : x(_x), y(_y) {}
 	Vector2f() : x(0.f), y(0.f) {}

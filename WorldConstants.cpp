@@ -1,9 +1,18 @@
 #include "WorldConstants.h"
+#include <thread>
 
+const bool USE_THREADS = true;
+//press f to toggle fps
+//press l to toggle lines
+bool DISPLAY_LINES = false;
+bool DISPLAY_FPS = false;
 namespace WorldConstants
 {
+	//Astar
+	const int G_COST = 10;
+
 	//threads
-	const int WORKER_COUNT = 4;
+	const int WORKER_COUNT = std::thread::hardware_concurrency() - 1;
 
 	//colours as hex values
 	const int NORMAL_COLOUR_ONE =	0x5A0A9C; //90, 10, 156
@@ -16,17 +25,19 @@ namespace WorldConstants
 	const int LEVEL_ONE_CHAR_SPAWN_WIDTH	= 8;
 	const int LEVEL_TWO_CHAR_SPAWN_WIDTH	= 15;
 	const int LEVEL_THREE_CHAR_SPAWN_WIDTH	= 40;
-	const int LEVEL_ONE_NPC_COUNT			= 1;
+	const int LEVEL_ONE_NPC_COUNT			= 5;
 	const int LEVEL_TWO_NPC_COUNT			= 50;
 	const int LEVEL_THREE_NPC_COUNT			= 500;
-	const int MAX_P_TARGET_MOVES			= 30;
+	const int MAX_P_TARGET_MOVES			= 25;
 
 	//timing
 	const int TICKS_PER_FRAMES		= 10;
-	const int TICKS_PER_CHAR_UPDATE = 50;
+	const int TICKS_PER_PLAYER_UPDATE = 50;
+	const int TICKS_PER_NPC_UPDATE = 40; //smaller than player update so its fast enough to catch up
 
 	//tile
 	const int TILE_SIZE = 15;
+	const int HALF_SIZE_PATH_SPLIT_MIN = 20; //min size of a path we split so we only do half of it (so we can follow player quicker)
 
 	//level length
 	const int LEVEL_ONE_LENGTH		= 30;

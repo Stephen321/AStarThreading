@@ -20,10 +20,11 @@ public:
 	void drawRect(SDL_Rect r, const Colour& fillColour) const;
 	void present();
 	void moveCamera(int xDir, int yDir);
-	void updateCamera(float dt);
-	void setPos(const Vector2f& v);
+	void resetCamera();
 	void zoom(int dir);
 	BoundingBox getCameraBounds() const;
+	SDL_Renderer* getRenderer();
+	SDL_Point applyCameraTransformationPoint(SDL_Point& p);
 
 private:
 	SDL_Window* m_window;

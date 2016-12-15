@@ -2,6 +2,7 @@
 #define ASTAR_H
 #include "TileMap.h"
 #include "ThreadPool.h"
+#include "Renderer.h"
 
 class Character;
 //A Star
@@ -16,11 +17,16 @@ public:
 			return (t1.second> t2.second);
 		}
 	};
+	static void render(Renderer& r);
 	static void setTileMap(TileMap* _tileMap);
 	static void FindPath(Character* character, const Vector2i& end);
 	static std::function<void()> getJobFunction(Character* character, const Vector2i& end);
+	static void popLastPoints(Character* character);
+	static void reset();
+	static void removePoints(Character* character);
 
 private:
+	static std::map<Character*, std::vector<SDL_Point>> pathPoints;
 	static TileMap* tileMap;
 	static float calculateHeuristic(const Tile * current, const Tile * goal);
 };

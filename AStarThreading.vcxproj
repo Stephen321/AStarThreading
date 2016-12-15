@@ -68,12 +68,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SDL_Image)\include;$(SDL_SDK)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(SDL_SDK)\lib\x86;$(SDL_Image)\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <SubSystem>Console</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "$(SDL_SDK)\lib\x86\SDL2.dll"  "$(TargetDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AStar.cpp" />
@@ -87,6 +94,7 @@
     <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="Worker.cpp" />
     <ClCompile Include="WorldConstants.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +114,7 @@
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Tile.h" />
+    <ClInclude Include="Worker.h" />
     <ClInclude Include="WorldConstants.h" />
   </ItemGroup>
   <ItemGroup>

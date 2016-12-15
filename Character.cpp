@@ -3,11 +3,9 @@
 Character::Character(const Vector2f& pos, Type type, Character* target)
 	: GameObject(type, pos)
 	, m_target(target)
-	, m_elapsedTime(0)
 	, m_waitingForPath(false)
+	, m_waitingForPathLock(SDL_CreateMutex())
 {
-	m_startPos = pos;
-	m_targetPos = pos;
 }
 
 Character::Character()
@@ -15,33 +13,37 @@ Character::Character()
 {
 }
 
-Character & Character::operator=(const Character & rhs)
+Character::~Character()
 {
-	m_colour = rhs.getColour();
-	m_rect = rhs.getRect();
-	m_type = rhs.getType();
-	m_startPos = rhs.getPos();
-	m_targetPos = rhs.getPos();
-	m_target = rhs.getTarget();
-	return *this;
+	m_target = 0;
+	SDL_DestroyMutex(m_waitingForPathLock);
+	m_waitingForPathLock = NULL;
 }
 
 void Character::move()
 {
-	if (m_tilePath.size() != 0)
+	if (getWaitingForPath() == false)
 	{
-		//TODO: use directions rather than absolute path for smooth motion between tiles?
-		m_startPos = getPos();
-		m_targetPos = m_tilePath.back()->getPos(); //get next target tile
-		m_tilePath.pop_back();
-		m_elapsedTime = 0;
-	}
-	else if (m_waitingForPath == false && m_target != 0 && m_lastTargetPos != Helper::posToCoords(m_target->getPos()))
-	{
-		m_lastTargetPos = Helper::posToCoords(m_target->getPos());
-		m_waitingForPath = true;
-		std::cout << "adding job" << std::endl;
-		ThreadPool::getInstance().addJob(AStar::getJobFunction(this, Helper::posToCoords(m_target->getPos())));
+		if (m_tilePath.size() != 0)
+		{
+			setPos(m_tilePath.back()->getPos()); //get next target tile
+			AStar::popLastPoints(this);
+			m_tilePath.pop_back();
+		}
+		else if (m_target != 0 && m_lastTargetPos != Helper::posToCoords(m_target->getPos()))
+		{
+			m_lastTargetPos = Helper::posToCoords(m_target->getPos());
+			if (USE_THREADS)
+			{
+				setWaitingForPath(true);
+				ThreadPool::getInstance().addJob(AStar::getJobFunction(this, Helper::posToCoords(m_target->getPos())));
+			}
+			else
+			{
+				m_waitingForPath = false;
+				AStar::FindPath(this, Helper::posToCoords(m_target->getPos()));
+			}
+		}
 	}
 }
 
@@ -50,10 +52,26 @@ Character * Character::getTarget() const
 	return m_target;
 }
 
-void Character::update(int dt)
+SDL_mutex * Character::getWaitingForPathLock() const
 {
-	setPos(Helper::lerp((float)m_elapsedTime / WorldConstants::TICKS_PER_CHAR_UPDATE, m_startPos, m_targetPos));
-	m_elapsedTime += dt;
+	return m_waitingForPathLock;
+}
+
+
+bool Character::getWaitingForPath()
+{
+	bool b;
+	SDL_LockMutex(m_waitingForPathLock);
+	b = m_waitingForPath;
+	SDL_UnlockMutex(m_waitingForPathLock);
+	return b;
+}
+
+void Character::setWaitingForPath(bool value)
+{
+	SDL_LockMutex(m_waitingForPathLock);
+	m_waitingForPath = value;
+	SDL_UnlockMutex(m_waitingForPathLock);
 }
 
 void Character::setPos(const Vector2f& v)
@@ -62,17 +80,22 @@ void Character::setPos(const Vector2f& v)
 	m_rect.y = v.y;
 }
 
-void Character::setPos(const Vector2i& v)
+void Character::setTilePath(std::vector<Tile*> tilePath) //called from threads after they do astar to get the path
 {
-	m_rect.x = v.x * WorldConstants::TILE_SIZE;
-	m_rect.y = v.y * WorldConstants::TILE_SIZE;
+	if (USE_THREADS)
+	{
+		setWaitingForPath(false);
+		m_tilePath = tilePath;
+	}
+	else
+	{
+		m_tilePath = tilePath;
+	}
 }
 
-void Character::setTilePath(std::vector<Tile*> tilePath)
+void Character::clearTilePath()
 {
-	m_waitingForPath = false;
-	m_elapsedTime = 0.f;
-	m_tilePath = tilePath;
+	m_tilePath.clear();
 }
 
 int Character::remainingPathPoints() const

@@ -61,16 +61,6 @@ Vector2f GameObject::getPos() const
 	return Vector2f(m_rect.x, m_rect.y);
 }
 
-SDL_Rect GameObject::getRect() const
-{
-	return m_rect;
-}
-
-Colour GameObject::getColour() const
-{
-	return m_colour;
-}
-
 GameObject::Type GameObject::getType() const
 {
 	return m_type;
