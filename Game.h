@@ -41,6 +41,7 @@ private:
 	Uint32 m_playerUpdateTicks;
 	Uint32 m_npcUpdateTicks;
 
+	Uint32 m_lastDeltaTicks;
 
 	Character* m_player;
 	std::vector<Character*> m_npcs;

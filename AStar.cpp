@@ -62,7 +62,7 @@ void AStar::FindPath(Character* character, const Vector2i& end)
 	std::map<int, Tile::Data> map;
 
 	map[startIndex].g = 0;
-	map[startIndex].f = calculateHeuristic(tileMap->getTile(startIndex), tileMap->getTile(endIndex));
+	map[startIndex].f = (int)calculateHeuristic(tileMap->getTile(startIndex), tileMap->getTile(endIndex));
 
 	std::vector<Tile*> path;
 
@@ -96,9 +96,10 @@ void AStar::FindPath(Character* character, const Vector2i& end)
 				fullPath.push_back(tileMap->getTile(index));
 			}
 			pathPoints[character] = points;
-			int halfSize = fullPath.size() * 0.5f;
+			int halfSize = (int)(fullPath.size() * 0.5f);
 			path = (halfSize >= WorldConstants::HALF_SIZE_PATH_SPLIT_MIN) ? std::vector<Tile*>(fullPath.begin() + halfSize, fullPath.end()) : fullPath; //split on big paths
 			pathFound = true;
+			continue;
 		}
 
 		for (int i = 0; i < 8; i += 2) //for each neighbour of current

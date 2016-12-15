@@ -10,7 +10,7 @@ namespace Helper
 
 	inline Vector2f coordsToPos(const Vector2i& coords)
 	{
-		return Vector2f(coords.x * WorldConstants::TILE_SIZE, coords.y * WorldConstants::TILE_SIZE);
+		return Vector2f((float)(coords.x * WorldConstants::TILE_SIZE), (float)(coords.y * WorldConstants::TILE_SIZE));
 	}
 
 	inline Vector2i posToCoords(const Vector2f& pos)
