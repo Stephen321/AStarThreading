@@ -14,7 +14,7 @@ class ThreadPool //singleton
 public:
 	static ThreadPool& getInstance()
 	{
-		static ThreadPool instance;
+		static ThreadPool instance; //thread safe since c++11
 		return instance;
 	}
 	std::queue<std::function<void()>>& getJobsQueue();

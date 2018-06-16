@@ -1,11 +1,12 @@
 #include "WorldConstants.h"
 #include <thread>
 
-const bool USE_THREADS = true;
+bool USE_THREADS = true;
 //press f to toggle fps
 //press l to toggle lines
-bool DISPLAY_LINES = false;
-bool DISPLAY_FPS = false;
+//press t to toggle threads
+bool DISPLAY_LINES = true;
+bool DISPLAY_FPS = true;
 namespace WorldConstants
 {
 	//Astar
@@ -57,11 +58,11 @@ namespace WorldConstants
 	const int LEVEL_TWO_TOUCHING_WALLS		= 2;
 	const int LEVEL_THREE_TOUCHING_WALLS	= 4;
 
-	const int LEVEL_COUNT = 3;
+	const int LEVEL_COUNT = 2; //TODO: 3rd level not working correctly, commented out for now.
 	const LevelData levels[LEVEL_COUNT] =
 	{
 		LevelData(LEVEL_ONE_CHAR_SPAWN_WIDTH  ,   LEVEL_ONE_NPC_COUNT,   LEVEL_ONE_LENGTH   , LEVEL_ONE_WALLS   , LEVEL_ONE_TOUCHING_WALLS),
-		LevelData(LEVEL_TWO_CHAR_SPAWN_WIDTH  ,   LEVEL_TWO_NPC_COUNT,   LEVEL_TWO_LENGTH   , LEVEL_TWO_WALLS   , LEVEL_TWO_TOUCHING_WALLS),
-		LevelData(LEVEL_THREE_CHAR_SPAWN_WIDTH,   LEVEL_THREE_NPC_COUNT,   LEVEL_THREE_LENGTH , LEVEL_THREE_WALLS , LEVEL_THREE_TOUCHING_WALLS)
+		LevelData(LEVEL_TWO_CHAR_SPAWN_WIDTH  ,   LEVEL_TWO_NPC_COUNT,   LEVEL_TWO_LENGTH   , LEVEL_TWO_WALLS   , LEVEL_TWO_TOUCHING_WALLS)//,
+		//LevelData(LEVEL_THREE_CHAR_SPAWN_WIDTH,   LEVEL_THREE_NPC_COUNT,   LEVEL_THREE_LENGTH , LEVEL_THREE_WALLS , LEVEL_THREE_TOUCHING_WALLS)
 	};
 }

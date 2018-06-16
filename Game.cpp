@@ -9,6 +9,10 @@ Game::Game()
 	, m_lastTicks(SDL_GetTicks())
 {
 	AStar::setTileMap(&m_tileMap); //make sure AStar has a pointer to tileMap
+
+	std::cout << "Display path lines: " << DISPLAY_LINES << std::endl;
+	std::cout << "Using threads: " << USE_THREADS << std::endl;
+	std::cout << "Display fps: " << DISPLAY_FPS << std::endl;
 }
 
 Game::~Game()
@@ -215,6 +219,9 @@ void Game::handleEvents()
 	{
 		switch (event.type)
 		{
+		case SDL_QUIT:
+			m_running = false;
+			break;
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym)
 			{
@@ -226,15 +233,21 @@ void Game::handleEvents()
 				m_currentSize = TileMap::MEDIUM;
 				reset(m_currentSize);
 				break;
-			case SDLK_3:
-				m_currentSize = TileMap::LARGE;
-				reset(m_currentSize);
-				break; 
+			//case SDLK_3:
+			//	m_currentSize = TileMap::LARGE;
+			//	reset(m_currentSize);
+			//	break; 
 			case SDLK_l:
 				DISPLAY_LINES = !DISPLAY_LINES;
+				std::cout << "Display path lines: " << DISPLAY_LINES << std::endl;
+				break;
+			case SDLK_t:
+				USE_THREADS = !USE_THREADS;
+				std::cout << "Using threads: " << USE_THREADS << std::endl;
 				break;
 			case SDLK_f:
 				DISPLAY_FPS = !DISPLAY_FPS;
+				std::cout << "Display fps: " << DISPLAY_FPS << std::endl;
 				break;
 			default:
 				break;

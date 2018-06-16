@@ -3,7 +3,7 @@
 
 #include "LevelData.h"
 
-extern const bool USE_THREADS;
+extern bool USE_THREADS;
 extern bool DISPLAY_LINES;
 extern bool DISPLAY_FPS;
 namespace WorldConstants
