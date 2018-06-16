@@ -9,7 +9,7 @@ Threads can be seen to improve the speed at which the yellow squares can begin m
 [Known issues and to do list](https://github.com/Stephen321/AStarThreading/issues/1)
 
 ## Video:
-https://www.youtube.com/upload
+https://youtu.be/KTlbpNSpPlE
 
 ## Controls:
 - F to toggle fps display.
