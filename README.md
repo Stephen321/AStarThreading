@@ -1,5 +1,5 @@
 # AStarThreading
-*Using SDL_Threads to better improve the performance of many A\* pathfinding characters in large maps.*
+*Using SDL_Threads to better improve the performance of many A\* pathfinding characters in large maps. (Thread pool, job queue, worker threads).*
 
 A level is a grid with walls which block movement. The green square is a target for all the yellow squares. The green square randomly selects a target to pathfind towards. Yellow squares target the green square. Once all yellow squares have reached the green square, the next level begins.  
 
